@@ -1,4 +1,4 @@
-lexer grammar LittleLexer;
+lexer grammar MicroLexer;
 
 KEYWORD
     : 'PROGRAM'
@@ -22,7 +22,7 @@ KEYWORD
     ;
 
 COMMENT
-    : '--'.*?
+    : '--'.*?EOL
     ;
 
 OPERATOR
@@ -44,10 +44,10 @@ OPERATOR
     ;
 
 INTLITERAL
-    : [0-9]+
+    : '0'..'9'+
     ;
 FLOATLITERAL
-    : [0-9]*.[0-9]+
+    : '0'..'9'*'.''0'..'9'+
     ;
 STRINGLITERAL
     : '"'~('"')*'"'
@@ -65,3 +65,5 @@ NAME
 WS
     : [ \t\r\n] -> skip
     ;
+
+fragment EOL: ('\r'|'\n')+;
