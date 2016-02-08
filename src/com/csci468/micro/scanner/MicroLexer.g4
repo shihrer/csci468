@@ -1,5 +1,14 @@
 lexer grammar MicroLexer;
 
+
+COMMENT
+    : '--'.*?EOL
+    ;
+
+WS
+    : (' ' | '\t' | '\r' | '\n')+ -> skip
+    ;
+
 KEYWORD
     : 'PROGRAM'
     | 'BEGIN'
@@ -19,10 +28,6 @@ KEYWORD
     | 'VOID'
     | 'STRING'
     | 'FLOAT'
-    ;
-
-COMMENT
-    : '--'.*?EOL
     ;
 
 OPERATOR
@@ -62,8 +67,4 @@ NAME
     : [a-zA-Z][a-zA-Z0-9]*
     ;
 
-WS
-    : [ \t\r\n] -> skip
-    ;
-
-fragment EOL: ('\r'|'\n')+;
+fragment EOL: ('\r'|'\n');
