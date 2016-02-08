@@ -2,11 +2,7 @@ lexer grammar MicroLexer;
 
 
 COMMENT
-    : '--'.*?EOL
-    ;
-
-WS
-    : (' ' | '\t' | '\r' | '\n')+ -> skip
+    : '--'.*?(WINEOL | UNIEOL)
     ;
 
 KEYWORD
@@ -67,4 +63,9 @@ NAME
     : [a-zA-Z][a-zA-Z0-9]*
     ;
 
-fragment EOL: ('\r'|'\n');
+WS
+    : (' ' | '\t' | '\r' | '\n')+ -> skip
+    ;
+
+fragment WINEOL: ('\r\n');
+fragment UNIEOL: ('\n');
