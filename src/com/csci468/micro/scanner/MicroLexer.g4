@@ -1,9 +1,6 @@
 lexer grammar MicroLexer;
 
 
-COMMENT
-    : '--'.*?(WINEOL | UNIEOL)
-    ;
 
 KEYWORD
     : 'PROGRAM'
@@ -44,11 +41,15 @@ OPERATOR
     | '>='
     ;
 
+COMMENT
+    : '--'.*?(WINEOL | UNIEOL) -> skip
+    ;
+
 INTLITERAL
-    : '0'..'9'+
+    : DIGIT+
     ;
 FLOATLITERAL
-    : '0'..'9'*'.''0'..'9'+
+    : DIGIT*'.'DIGIT+
     ;
 STRINGLITERAL
     : '"'~('"')*'"'
@@ -69,3 +70,4 @@ WS
 
 fragment WINEOL: ('\r\n');
 fragment UNIEOL: ('\n');
+fragment DIGIT: '0'..'9';

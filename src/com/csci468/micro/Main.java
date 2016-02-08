@@ -8,39 +8,41 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         //Read java arg for input
-        String input = "PROGRAM loop\n" +
+        String input = "PROGRAM fibonacci\n" +
                 "BEGIN\n" +
                 "\n" +
-                "     STRING guess := \"Guess a number: \";\n" +
-                "     STRING correct := \"Correct!\\n\";\n" +
-                "     STRING wrong := \"Wrong!\\n\";\n" +
-                "     STRING out1 := \"It took you \";\n" +
-                "     STRING out2 := \" guesses\";\n" +
+                "\tSTRING input := \"Please input an integer number: \";\n" +
+                "\tSTRING space := \" \";\n" +
+                "\tSTRING eol := \"\\n\";\n" +
                 "\n" +
-                "\tINT i;\n" +
-                "\tINT j;\n" +
-                "\n" +
-                "\t--PROTO VOID main();\n" +
-                "\n" +
-                "\tFUNCTION VOID main()\n" +
+                "\tFUNCTION INT F (INT n)\n" +
                 "\tBEGIN\n" +
-                "\t\ti := 17;\n" +
-                "\t\tj := 0;\n" +
-                "\t\tk := 0;\n" +
-                "\t\tWHILE (i != j)\n" +
-                "\t\t\tWRITE(guess);\n" +
-                "\t\t\tREAD(j);\n" +
-                "\t\t\tk := k + 1;\n" +
-                "\t\t\tIF (i = j)\n" +
-                "\t\t\t     WRITE(correct);\n" +
-                "\t\t\tELSE\n" +
-                "\t\t\t     WRITE(wrong);\n" +
-                "\t\t\tENDIF\n" +
-                "\t\tENDWHILE\n" +
                 "\n" +
-                "\t\tWRITE (out1, k, out2);\n" +
+                "\t\tIF (n > 2)\n" +
+                "\t\t     RETURN F(n-1)+F(n-2);\n" +
+                "\t\tELSE\n" +
+                "\t\t\tRETURN 1;\n" +
+                "\t    ENDIF\n" +
                 "\tEND\n" +
-                "END\n";
+                "\t\n" +
+                "\t\n" +
+                "\tFUNCTION VOID main ()\n" +
+                "\tBEGIN\n" +
+                "\t\tINT i, end, result;\n" +
+                "\t\tWRITE(input);\n" +
+                "\t\tREAD(end);\n" +
+                "\n" +
+                "\ti := 0;\n" +
+                "\tWHILE (i != end)\n" +
+                "\t\tresult := F(i);\n" +
+                "\t\tWRITE (i,space);\n" +
+                "\t\tWRITE (result,eol);\n" +
+                "\t\ti := i + 1;\t\n" +
+                "\tENDWHILE\n" +
+                "\n" +
+                "\tEND\n" +
+                "\n" +
+                "END\t\n";
 
         if(args.length > 0)
             input = args[0];
