@@ -1,9 +1,6 @@
 package com.csci468.micro;
-import com.csci468.micro.scanner.MicroLexer;
-import org.antlr.v4.runtime.ANTLRFileStream;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.Vocabulary;
+
+import com.csci468.micro.scanner.MicroScanner;
 
 import java.io.IOException;
 
@@ -50,19 +47,7 @@ public class Main {
         //else
             //System.out.println("You must supply an input.");
 
-
-
-        //TODO: Refactor main class.  Code should go into a scanner class.
-        MicroLexer lexer = new MicroLexer(new ANTLRInputStream(input));
-        Vocabulary vocab = lexer.getVocabulary();
-
-        for(Token token: lexer.getAllTokens())
-        {
-            System.out.println("Token Type: " + vocab.getDisplayName(token.getType()) + "\nValue: " + token.getText());
-
-            if(vocab.getDisplayName(token.getType()).equals("COMMENT")) {
-                int i = 0;
-            }
-        }
+        MicroScanner microScanner = new MicroScanner(input);
+        microScanner.Scan();
     }
 }
