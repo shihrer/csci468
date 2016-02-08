@@ -42,7 +42,7 @@ OPERATOR
     ;
 
 COMMENT
-    : '--'.*?(WINEOL | UNIEOL) -> skip
+    : '--'.*? -> skip
     ;
 
 INTLITERAL
