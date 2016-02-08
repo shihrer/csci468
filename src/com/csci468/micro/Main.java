@@ -8,41 +8,39 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         //Read java arg for input
-        String input = "PROGRAM fibonacci\n" +
+        String input = "PROGRAM sqrt\n" +
                 "BEGIN\n" +
                 "\n" +
-                "\tSTRING input := \"Please input an integer number: \";\n" +
-                "\tSTRING space := \" \";\n" +
-                "\tSTRING eol := \"\\n\";\n" +
+                "\tSTRING dummy := \"abcde\";  --This is dummy to satisfy the grammar\n" +
                 "\n" +
-                "\tFUNCTION INT F (INT n)\n" +
+                "\tFLOAT n;\n" +
+                "\tFLOAT x1,x2;\n" +
+                "\tFLOAT fx, dfx;\n" +
+                "\tFLOAT error;\n" +
+                "\tINT i;\n" +
+                "\n" +
+                "\tFUNCTION VOID main()\n" +
                 "\tBEGIN\n" +
+                "\t\terror := 0.001;\n" +
+                "\t\tREAD (x1);\n" +
+                "\t\tfx := x1*x1 - n;\n" +
+                "\t\tdfx := 2.0*x1;\n" +
+                "\t\tx2 := x1 - fx/dfx;\n" +
                 "\n" +
-                "\t\tIF (n > 2)\n" +
-                "\t\t     RETURN F(n-1)+F(n-2);\n" +
-                "\t\tELSE\n" +
-                "\t\t\tRETURN 1;\n" +
-                "\t    ENDIF\n" +
+                "\t\tx1 := x2;\n" +
+                "\t\tfx := x1*x1 - n;\n" +
+                "\t\tdfx := 2.0*x1;\n" +
+                "\t\tx2 := x1 - fx/dfx;\n" +
+                "\t\tWHILE ((x1 - x2) > error)\n" +
+                "\t\t\tx1 := x2;\n" +
+                "\t\t\tfx := x1*x1 - n;\n" +
+                "\t\t\tdfx := 2.0*x1;\n" +
+                "\t\t\tx2 := x1 - fx/dfx;\n" +
+                "\t\tENDWHILE\n" +
+                "\n" +
+                "\t\tWRITE (x2);\n" +
                 "\tEND\n" +
-                "\t\n" +
-                "\t\n" +
-                "\tFUNCTION VOID main ()\n" +
-                "\tBEGIN\n" +
-                "\t\tINT i, end, result;\n" +
-                "\t\tWRITE(input);\n" +
-                "\t\tREAD(end);\n" +
-                "\n" +
-                "\ti := 0;\n" +
-                "\tWHILE (i != end)\n" +
-                "\t\tresult := F(i);\n" +
-                "\t\tWRITE (i,space);\n" +
-                "\t\tWRITE (result,eol);\n" +
-                "\t\ti := i + 1;\t\n" +
-                "\tENDWHILE\n" +
-                "\n" +
-                "\tEND\n" +
-                "\n" +
-                "END\t\n";
+                "END\n";
 
         if(args.length > 0)
             input = args[0];
