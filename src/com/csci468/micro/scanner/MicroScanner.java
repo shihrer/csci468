@@ -1,6 +1,6 @@
 package com.csci468.micro.scanner;
 
-import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.Vocabulary;
 
@@ -13,14 +13,14 @@ public class MicroScanner {
 
     public MicroScanner(String inputPath) throws IOException {
         inputFile = inputPath;
-//        try
-//        {
-            lexer = new MicroLexer(new ANTLRInputStream(inputFile));
-//        }
-//        catch(IOException e)
-//        {
-//            System.out.println(e.getLocalizedMessage());
-//        }
+        try
+        {
+            lexer = new MicroLexer(new ANTLRFileStream(inputFile));
+        }
+        catch(IOException e)
+        {
+            System.out.println(e.getLocalizedMessage());
+        }
 
         vocab = lexer.getVocabulary();
     }
