@@ -41,10 +41,6 @@ OPERATOR
     | '>='
     ;
 
-COMMENT
-    : '--'.*?(WINEOL | UNIEOL) -> skip
-    ;
-
 INTLITERAL
     : DIGIT+
     ;
@@ -64,10 +60,14 @@ NAME
     : [a-zA-Z][a-zA-Z0-9]*
     ;
 
+COMMENT
+    : '--'.*?(WINEOL | UNIEOL) -> skip
+    ;
+
 WS
     : (' ' | '\t' | '\r' | '\n')+ -> skip
     ;
 
 fragment WINEOL: ('\r\n');
 fragment UNIEOL: ('\n');
-fragment DIGIT: '0'..'9';
+fragment DIGIT: [0-9];
