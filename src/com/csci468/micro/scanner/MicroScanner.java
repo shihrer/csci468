@@ -1,8 +1,6 @@
 package com.csci468.micro.scanner;
 
-import org.antlr.v4.runtime.ANTLRFileStream;
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.Vocabulary;
+import org.antlr.v4.runtime.*;
 
 import java.io.IOException;
 
@@ -27,7 +25,12 @@ public class MicroScanner {
 
     public void Scan()
     {
-        for(Token token: lexer.getAllTokens())
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+
+        MicroLexerParser parser = new MicroLexerParser(tokens);
+
+        parser.program();
+        /*for(Token token: lexer.getAllTokens())
         {
             System.out.println("Token Type: " + vocab.getDisplayName(token.getType()) + "\nValue: " + token.getText());
 
@@ -35,6 +38,7 @@ public class MicroScanner {
                 int i = 0;
             }
         }
+        */
 
     }
 }
