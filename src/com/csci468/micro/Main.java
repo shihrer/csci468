@@ -16,5 +16,7 @@ public class Main {
 
         MicroScanner microScanner = new MicroScanner(input);
         microScanner.Scan();
+
+
     }
 }

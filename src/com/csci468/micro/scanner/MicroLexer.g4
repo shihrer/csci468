@@ -93,6 +93,10 @@ compop : '<' | '>' | '=' | '!=' | '<=' | '>=' ;
 /* While statements */
 while_stmt : 'WHILE' '(' cond ')' decl stmt_list 'ENDWHILE' ;
 
+IDENTIFIER
+    : [a-zA-Z][a-zA-Z0-9]*
+    ;
+
 KEYWORD
     : 'PROGRAM'
     | 'BEGIN'
@@ -135,20 +139,13 @@ OPERATOR
 INTLITERAL
     : DIGIT+
     ;
+
 FLOATLITERAL
     : DIGIT*'.'DIGIT+
     ;
+
 STRINGLITERAL
     : '"'~('"')*'"'
-    ;
-
-/* Identifiers */
-IDENTIFIER
-    : NAME
-    ;
-
-NAME
-    : [a-zA-Z][a-zA-Z0-9]*
     ;
 
 COMMENT
