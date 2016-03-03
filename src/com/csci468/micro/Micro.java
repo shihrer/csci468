@@ -8,22 +8,17 @@ import org.antlr.v4.runtime.Vocabulary;
 import java.io.IOException;
 
 public class Micro {
-    private String inputFile;
     MicroLexer lexer;
-    Vocabulary vocab;
 
     public Micro(String inputPath) throws IOException {
-        inputFile = inputPath;
         try
         {
-            lexer = new MicroLexer(new ANTLRFileStream(inputFile));
+            lexer = new MicroLexer(new ANTLRFileStream(inputPath));
         }
         catch(IOException e)
         {
             System.out.println(e.getLocalizedMessage());
         }
-
-        vocab = lexer.getVocabulary();
     }
 
     public void Scan()

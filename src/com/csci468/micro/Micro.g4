@@ -10,7 +10,7 @@ decl : string_decl decl | var_decl decl |   ;
 
 /* Global String Declaration */
 string_decl : 'STRING' id ':=' str ';' ;
-str : 'STRINGLITERAL' ;
+str : STRINGLITERAL ;
 
 /* Variable Declaration */
 var_decl : var_type id_list ';' ;
@@ -50,7 +50,7 @@ postfix_expr : primary | call_expr ;
 call_expr : id '(' expr_list ')' ;
 expr_list : expr expr_list_tail |   ;
 expr_list_tail : ',' expr expr_list_tail |   ;
-primary : '(' expr ')' | id | 'INTLITERAL' | 'FLOATLITERAL' ;
+primary : '(' expr ')' | id | INTLITERAL | FLOATLITERAL ;
 addop : '+' | '-' ;
 mulop : '*' | '/' ;
 
@@ -65,6 +65,15 @@ while_stmt : 'WHILE' '(' cond ')' decl stmt_list 'ENDWHILE' ;
 
 
 /* Lexer Grammer */
+
+STRINGLITERAL
+    : '"'~('"')*'"'
+    ;
+
+IDENTIFIER
+    : [a-zA-Z][a-zA-Z0-9]*
+    ;
+
 KEYWORD
     : 'PROGRAM'
     | 'BEGIN'
@@ -107,20 +116,9 @@ OPERATOR
 INTLITERAL
     : DIGIT+
     ;
+
 FLOATLITERAL
     : DIGIT*'.'DIGIT+
-    ;
-STRINGLITERAL
-    : '"'~('"')*'"'
-    ;
-
-/* Identifiers */
-IDENTIFIER
-    : NAME
-    ;
-
-NAME
-    : [a-zA-Z][a-zA-Z0-9]*
     ;
 
 COMMENT
@@ -134,70 +132,3 @@ WS
 fragment WINEOL: ('\r\n');
 fragment UNIEOL: ('\n');
 fragment DIGIT: [0-9];
-
-//IDENTIFIER
-//    : [a-zA-Z][a-zA-Z0-9]*
-//    ;
-//
-//KEYWORD
-//    : 'PROGRAM'
-//    | 'BEGIN'
-//    | 'END'
-//    | 'FUNCTION'
-//    | 'READ'
-//    | 'WRITE'
-//    | 'IF'
-//    | 'ELSE'
-//    | 'ENDIF'
-//    | 'WHILE'
-//    | 'ENDWHILE'
-//    | 'CONTINUE'
-//    | 'BREAK'
-//    | 'RETURN'
-//    | 'INT'
-//    | 'VOID'
-//    | 'STRING'
-//    | 'FLOAT'
-//    ;
-//
-//OPERATOR
-//    : ':='
-//    | '+'
-//    | '-'
-//    | '*'
-//    | '/'
-//    | '='
-//    | '!='
-//    | '<'
-//    | '>'
-//    | '('
-//    | ')'
-//    | ';'
-//    | ','
-//    | '<='
-//    | '>='
-//    ;
-//
-//INTLITERAL
-//    : DIGIT+
-//    ;
-//
-//FLOATLITERAL
-//    : DIGIT*'.'DIGIT+
-//    ;
-//
-//STRINGLITERAL
-//    : '"'~('"')*'"'
-//    ;
-//
-//COMMENT
-//    : '--'.*?(WINEOL | UNIEOL) -> skip
-//    ;
-//
-//WS
-//    : (' ' | '\t' | '\r' | '\n')+ -> skip
-//    ;
-//
-//fragment WINEOL: ('\r\n');
-//fragment UNIEOL: ('\n');
-//fragment DIGIT: [0-9];
