@@ -1,4 +1,4 @@
-grammar MicroLexer;
+grammar Micro;
 
 /* Program */
 program : 'PROGRAM' id 'BEGIN' body 'END' ;
