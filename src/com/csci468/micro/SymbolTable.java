@@ -10,15 +10,20 @@ import java.util.Stack;
 class SymbolTable {
     private Stack<Scope> scopeStack;
 
-    public Scope pushScope(){
-        Scope scope = new Scope();
+    SymbolTable(){
+        scopeStack = new Stack<>();
+        scopeStack.push(new Scope("GLOBAL"));
+    }
+
+    Scope pushScope(String name){
+        Scope scope = new Scope(name);
         scopeStack.push(scope);
 
         return scope;
     }
 
     public Scope popScope(){
-        throw new UnsupportedOperationException("Not implemented yet.");
+        return scopeStack.pop();
     }
 
     //Define a symbol

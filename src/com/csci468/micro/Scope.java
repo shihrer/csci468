@@ -10,7 +10,14 @@ import java.util.Map;
  * 26 March 2016
  */
 class Scope {
-    private Map<String, Symbol> symbolMap = new HashMap<>();
+    private Map<String, Symbol> symbolMap;
+
+    private String name;
+
+    Scope(String name){
+        this.name = name;
+        symbolMap = new HashMap<>();
+    }
 
     //Add method to insert a symbol to the scope
     void addSymbol(Symbol symbol){
