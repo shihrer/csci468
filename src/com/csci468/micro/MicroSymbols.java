@@ -1,5 +1,7 @@
 package com.csci468.micro;
 
+import java.util.Stack;
+
 /**
  * Michael Shihrer
  * Matthew Johnerson
@@ -7,9 +9,16 @@ package com.csci468.micro;
  */
 
 class MicroSymbols extends MicroBaseListener {
+    private Stack scopeStack;
+
+    MicroSymbols()
+    {
+        scopeStack = new Stack();
+    }
 
     @Override
     public void enterProgram(MicroParser.ProgramContext ctx){
+        // This is our global scope
         String name = "GLOBAL";
         String output = String.format("Symbol table %s", name);
 
