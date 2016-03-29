@@ -7,14 +7,22 @@ import java.util.Stack;
  * Matthew Johnerson
  * 28 March 2016
  */
-public class SymbolTable {
-    protected Stack<Scope> scopeStack;
+class SymbolTable {
+    private Stack<Scope> scopeStack;
 
     public Scope pushScope(){
-        throw new UnsupportedOperationException("Not implemented yet.");
+        Scope scope = new Scope();
+        scopeStack.push(scope);
+
+        return scope;
     }
 
     public Scope popScope(){
+        throw new UnsupportedOperationException("Not implemented yet.");
+    }
+
+    //Define a symbol
+    public void createSymbol() {
         throw new UnsupportedOperationException("Not implemented yet.");
     }
 }
