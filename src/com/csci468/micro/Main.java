@@ -2,7 +2,7 @@ package com.csci468.micro;
 
 import java.io.IOException;
 
-public class Main {
+class Main {
 
     public static void main(String[] args) throws IOException {
         if(args.length > 0) {
