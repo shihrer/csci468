@@ -42,6 +42,7 @@ class Scope {
             output.append(symbol);
         }
 
+        output.append("\n");
         return output.toString();
     }
 }
