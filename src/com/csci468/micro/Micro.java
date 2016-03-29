@@ -3,6 +3,7 @@ package com.csci468.micro;
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
@@ -30,9 +31,14 @@ class Micro {
         parser.setErrorHandler(new BailErrorStrategy());
         try {
             ParseTree tree = parser.program();
-            ParseTreeWalker.DEFAULT.walk(new Listener(), tree);
-        }catch(Exception e){
-            System.out.println("Not accepted");
+            Listener microListener = new Listener();
+            ParseTreeWalker.DEFAULT.walk(microListener, tree);
+
+            System.out.println(microListener);
+
+        }catch(ParseCancellationException e){
+            System.out.println(e.getMessage());
+            //System.out.println("Not accepted");
         }
     }
 }
