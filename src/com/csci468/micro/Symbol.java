@@ -19,10 +19,15 @@ class Symbol {
     public Symbol(String name, String type){
         this.name = name;
         this.type = type;
+        this.value = "";
     }
 
     @Override
     public String toString(){
-        throw new UnsupportedOperationException("This is not implemented yet.");
+        if(value.isEmpty()) {
+            return String.format("name %s type %s\n", this.name, this.type);
+        }else{
+            return String.format("name %s type %s value %s\n", this.name, this.type, this.value);
+        }
     }
 }

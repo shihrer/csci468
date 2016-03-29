@@ -1,7 +1,9 @@
 package com.csci468.micro;
 
 
-import java.util.HashMap;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
+
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -16,7 +18,7 @@ class Scope {
 
     Scope(String name){
         this.name = name;
-        symbolMap = new HashMap<>();
+        symbolMap = new LinkedHashMap<>();
     }
 
     //Add method to insert a symbol to the scope
@@ -26,7 +28,20 @@ class Scope {
         if(!symbolMap.containsKey(symbol.name)){
             symbolMap.put(symbol.name, symbol);
         }else{
-            //error
+            throw new ParseCancellationException(String.format("DECLARATION ERROR %s", symbol.name));
         }
+    }
+
+    public String toString(){
+        StringBuilder output = new StringBuilder();
+
+        output.append(String.format("Symbol table %s\n", this.name));
+        //Append symbols
+        for(Map.Entry<String, Symbol> entry : symbolMap.entrySet()){
+            Symbol symbol = entry.getValue();
+            output.append(symbol);
+        }
+
+        return output.toString();
     }
 }

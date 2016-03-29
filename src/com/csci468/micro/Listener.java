@@ -16,22 +16,14 @@ class Listener extends MicroBaseListener {
     }
 
     @Override
-    public void enterProgram(MicroParser.ProgramContext ctx){
-        // This is our global scope - don't need to push a scope
-        String name = "GLOBAL";
-        String output = String.format("Symbol table %s", name);
-
-        System.out.println(output);
-    }
-
-    @Override
     public void enterFuncDecl(MicroParser.FuncDeclContext ctx) {
         //Create new scope
         microSymbolTable.pushScope(ctx.id().getText());
-        String name = ctx.id().getText();
-        String output = String.format("Symbol table %s", name);
+    }
 
-        System.out.println(output);
+    @Override
+    public void exitFuncDecl(MicroParser.FuncDeclContext ctx) {
+
     }
 
     @Override
@@ -39,9 +31,7 @@ class Listener extends MicroBaseListener {
         //Create new scope
         String name = "BLOCK " + count;
         count++;
-        String output = String.format("Symbol table %s", name);
-
-        System.out.println(output);
+        microSymbolTable.pushScope(name);
     }
 
     @Override
@@ -49,9 +39,7 @@ class Listener extends MicroBaseListener {
         //Create new scope
         String name = "BLOCK " + count;
         count++;
-        String output = String.format("Symbol table %s", name);
-
-        System.out.println(output);
+        microSymbolTable.pushScope(name);
     }
 
     @Override
@@ -60,9 +48,7 @@ class Listener extends MicroBaseListener {
             String name = "BLOCK " + count;
             count++;
 
-            String output = String.format("Symbol table %s", name);
-
-            System.out.println(output);
+            microSymbolTable.pushScope(name);
         }
     }
 
@@ -75,7 +61,6 @@ class Listener extends MicroBaseListener {
         String value = input.substring(cut1+2,input.length()-1);
         String output = String.format("name %s type STRING value %s", name, value);
         microSymbolTable.createSymbol(name,"STRING",value);
-        System.out.println(output);
     }
 
     @Override
@@ -89,7 +74,6 @@ class Listener extends MicroBaseListener {
                 s = s.replace(";","");
                 String output = String.format("name %s type FLOAT", s);
                 microSymbolTable.createSymbol(s,"FLOAT");
-                System.out.println(output);
             }
         }
         if(input.startsWith("INT")) {
@@ -99,11 +83,13 @@ class Listener extends MicroBaseListener {
                 s = s.replace(";","");
                 String output = String.format("name %s type INT", s);
                 microSymbolTable.createSymbol(s,"INT");
-                System.out.println(output);
             }
         }
+    }
 
-
-
+    @Override
+    public String toString()
+    {
+        return microSymbolTable.toString();
     }
 }
