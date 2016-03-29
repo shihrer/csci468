@@ -1,5 +1,6 @@
 package com.csci468.micro;
 
+import javax.lang.model.type.MirroredTypeException;
 import java.util.Stack;
 
 /**
@@ -9,12 +10,6 @@ import java.util.Stack;
  */
 
 class Listener extends MicroBaseListener {
-    private Stack<String> scopeStack;
-
-    Listener()
-    {
-        scopeStack = new Stack<>();
-    }
 
     @Override
     public void enterProgram(MicroParser.ProgramContext ctx){
@@ -31,6 +26,44 @@ class Listener extends MicroBaseListener {
         String name = ctx.id().getText();
         String output = String.format("Symbol table %s", name);
 
-        scopeStack.push(output);
+        System.out.println(output);
+    }
+
+    @Override
+    public void enterIfStmt(MicroParser.IfStmtContext ctx){
+        //Create new scope
+        String name = ctx.getText();
+        String output = String.format("Symbol table %s", name);
+
+        System.out.println(output);
+    }
+
+    @Override
+    public void enterWhileStmt(MicroParser.WhileStmtContext ctx){
+        //Create new scope
+        String name = ctx.getText();
+        String output = String.format("Symbol table %s", name);
+
+        System.out.println(output);
+    }
+
+    @Override
+    public void enterElsePart(MicroParser.ElsePartContext ctx){
+        String name = ctx.getText();
+        String output = String.format("Symbol table %s", name);
+
+        System.out.println(output);
+    }
+
+    @Override
+    public void enterStringDecl(MicroParser.StringDeclContext ctx){
+        //Create an entry in the current scope
+
+    }
+
+    @Override
+    public void enterVarDecl(MicroParser.VarDeclContext ctx){
+        //Create an entry in the current scope
+
     }
 }
