@@ -6,5 +6,5 @@ package com.csci468.micro;
  * Matthew Johnerson
  * 26 March 2016
  */
-public class MicroScope {
+class Scope {
 }
