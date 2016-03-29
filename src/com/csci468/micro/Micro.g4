@@ -126,7 +126,7 @@ COMMENT
     ;
 
 WS
-    : (' ' | '\t' | '\r' | '\n')+ -> skip
+    : [ \t\n\r]+ -> skip
     ;
 
 fragment WINEOL: ('\r\n');
