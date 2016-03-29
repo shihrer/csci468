@@ -17,7 +17,7 @@ class Listener extends MicroBaseListener {
 
     @Override
     public void enterProgram(MicroParser.ProgramContext ctx){
-        // This is our global scope
+        // This is our global scope - don't need to push a scope
         String name = "GLOBAL";
         String output = String.format("Symbol table %s", name);
 
@@ -27,6 +27,7 @@ class Listener extends MicroBaseListener {
     @Override
     public void enterFuncDecl(MicroParser.FuncDeclContext ctx) {
         //Create new scope
+        microSymbolTable.pushScope(ctx.id().getText());
         String name = ctx.id().getText();
         String output = String.format("Symbol table %s", name);
 
