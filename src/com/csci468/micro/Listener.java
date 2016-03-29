@@ -1,8 +1,5 @@
 package com.csci468.micro;
 
-import javax.lang.model.type.MirroredTypeException;
-import java.util.Stack;
-
 /**
  * Michael Shihrer
  * Matthew Johnerson
@@ -10,6 +7,11 @@ import java.util.Stack;
  */
 
 class Listener extends MicroBaseListener {
+    private SymbolTable microSymbolTable;
+
+    Listener(){
+        microSymbolTable = new SymbolTable();
+    }
 
     @Override
     public void enterProgram(MicroParser.ProgramContext ctx){
@@ -64,6 +66,5 @@ class Listener extends MicroBaseListener {
     @Override
     public void enterVarDecl(MicroParser.VarDeclContext ctx){
         //Create an entry in the current scope
-
     }
 }
