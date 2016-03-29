@@ -74,7 +74,7 @@ class Listener extends MicroBaseListener {
         String name = input.substring(6,cut1);
         String value = input.substring(cut1+2,input.length()-1);
         String output = String.format("name %s type STRING value %s", name, value);
-
+        microSymbolTable.createSymbol(name,"STRING",value);
         System.out.println(output);
     }
 
@@ -88,6 +88,7 @@ class Listener extends MicroBaseListener {
             for (String s : tokens){
                 s = s.replace(";","");
                 String output = String.format("name %s type FLOAT", s);
+                microSymbolTable.createSymbol(s,"FLOAT");
                 System.out.println(output);
             }
         }
@@ -97,6 +98,7 @@ class Listener extends MicroBaseListener {
             for (String s : tokens){
                 s = s.replace(";","");
                 String output = String.format("name %s type INT", s);
+                microSymbolTable.createSymbol(s,"INT");
                 System.out.println(output);
             }
         }
