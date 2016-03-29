@@ -28,6 +28,8 @@ class SymbolTable {
         scopeStack.peek().addSymbol(symbol);
     }
     public void createSymbol(String name, String type){
+        Symbol symbol = new Symbol(name, type);
 
+        scopeStack.peek().addSymbol(symbol);
     }
 }
