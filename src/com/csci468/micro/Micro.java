@@ -30,7 +30,7 @@ class Micro {
         parser.setErrorHandler(new BailErrorStrategy());
         try {
             ParseTree tree = parser.program();
-            ParseTreeWalker.DEFAULT.walk(new MicroSymbols(), tree);
+            ParseTreeWalker.DEFAULT.walk(new Listener(), tree);
         }catch(Exception e){
             System.out.println("Not accepted");
         }

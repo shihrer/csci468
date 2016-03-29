@@ -8,12 +8,12 @@ import java.util.Stack;
  * 26 March 2016
  */
 
-class MicroSymbols extends MicroBaseListener {
-    private Stack scopeStack;
+class Listener extends MicroBaseListener {
+    private Stack<String> scopeStack;
 
-    MicroSymbols()
+    Listener()
     {
-        scopeStack = new Stack();
+        scopeStack = new Stack<>();
     }
 
     @Override
@@ -26,10 +26,11 @@ class MicroSymbols extends MicroBaseListener {
     }
 
     @Override
-    public void enterFunc_decl(MicroParser.Func_declContext ctx) {
+    public void enterFuncDecl(MicroParser.FuncDeclContext ctx) {
+        //Create new scope
         String name = ctx.id().getText();
         String output = String.format("Symbol table %s", name);
 
-        System.out.println(output);
+        scopeStack.push(output);
     }
 }
