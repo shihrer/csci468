@@ -22,7 +22,12 @@ class SymbolTable {
     }
 
     //Define a symbol
-    public void createSymbol() {
-        throw new UnsupportedOperationException("Not implemented yet.");
+    public void createSymbol(String name, String type, String value) {
+        Symbol symbol = new Symbol(name, type, value);
+
+        scopeStack.peek().addSymbol(symbol);
+    }
+    public void createSymbol(String name, String type){
+
     }
 }

@@ -10,12 +10,16 @@ import java.util.Map;
  * 26 March 2016
  */
 class Scope {
-    Map<String, Symbol> symbolMap = new HashMap<>();
+    private Map<String, Symbol> symbolMap = new HashMap<>();
 
     //Add method to insert a symbol to the scope
-    public void createSymbol(){
+    void addSymbol(Symbol symbol){
         //Create new symbol
         //Add it to a scope
-        throw new UnsupportedOperationException("This is not implemented yet.");
+        if(!symbolMap.containsKey(symbol.name)){
+            symbolMap.put(symbol.name, symbol);
+        }else{
+            //error
+        }
     }
 }
