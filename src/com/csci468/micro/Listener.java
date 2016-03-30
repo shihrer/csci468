@@ -55,35 +55,30 @@ class Listener extends MicroBaseListener {
     @Override
     public void enterStringDecl(MicroParser.StringDeclContext ctx){
         //Create an entry in the current scope
-        String input = ctx.getText();
-        int cut1 = input.indexOf(":=");
-        String name = input.substring(6,cut1);
-        String value = input.substring(cut1+2,input.length()-1);
-        String output = String.format("name %s type STRING value %s", name, value);
-        microSymbolTable.createSymbol(name,"STRING",value);
+        String name = ctx.id().getText();
+        String value = ctx.str().getText();
+        String type = ctx.STRING().getText();
+        microSymbolTable.createSymbol(name, type,value);
     }
 
     @Override
     public void enterVarDecl(MicroParser.VarDeclContext ctx){
+        String varType = ctx.varType().getText();
         //Create an entry in the current scope
         String input = ctx.getText();
-        if(input.startsWith("FLOAT")){
-            String names = input.substring(5,input.length());
-            String[] tokens = names.split(",");
-            for (String s : tokens){
-                s = s.replace(";","");
-                String output = String.format("name %s type FLOAT", s);
-                microSymbolTable.createSymbol(s,"FLOAT");
-            }
+        String names = new String();
+
+        if(varType == "FLOAT"){
+            names = input.substring(5,input.length());
         }
-        if(input.startsWith("INT")) {
-            String names = input.substring(3,input.length());
-            String[] tokens = names.split(",");
-            for (String s : tokens){
-                s = s.replace(";","");
-                String output = String.format("name %s type INT", s);
-                microSymbolTable.createSymbol(s,"INT");
-            }
+        else {
+            names = input.substring(3,input.length());
+        }
+
+        String[] tokens = names.split(",");
+        for (String s : tokens){
+            s = s.replace(";","");
+            microSymbolTable.createSymbol(s,varType);
         }
     }
 
