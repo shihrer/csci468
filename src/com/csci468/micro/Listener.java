@@ -25,7 +25,8 @@ class Listener extends MicroBaseListener {
     public void exitFuncDecl(MicroParser.FuncDeclContext ctx) {
 
     }
-
+    @Override public void enterParamDecl(MicroParser.ParamDeclContext ctx){
+    }
     @Override
     public void enterIfStmt(MicroParser.IfStmtContext ctx){
         //Create new scope
@@ -66,9 +67,9 @@ class Listener extends MicroBaseListener {
         String varType = ctx.varType().getText();
         //Create an entry in the current scope
         String input = ctx.getText();
-        String names = new String();
+        String names;
 
-        if(varType == "FLOAT"){
+        if(varType.equals("FLOAT")){
             names = input.substring(5,input.length());
         }
         else {
