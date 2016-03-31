@@ -34,15 +34,17 @@ class Scope {
 
     public String toString(){
         StringBuilder output = new StringBuilder();
-
-        output.append(String.format("Symbol table %s\n", this.name));
+        if(this.name.equals("GLOBAL")){
+            output.append(String.format("Symbol table %s\n", this.name));
+        }else {
+            output.append(String.format("\nSymbol table %s\n", this.name));
+        }
         //Append symbols
         for(Map.Entry<String, Symbol> entry : symbolMap.entrySet()){
             Symbol symbol = entry.getValue();
+
             output.append(symbol);
         }
-
-        output.append("\n");
         return output.toString();
     }
 }
