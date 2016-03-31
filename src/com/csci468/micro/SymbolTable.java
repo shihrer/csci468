@@ -11,7 +11,6 @@ import java.util.Stack;
 class SymbolTable {
     private Stack<Scope> scopeStack;
     private ArrayList<Scope> scopes;
-    private int blockCount;
 
     SymbolTable(){
         scopeStack = new Stack<>();
@@ -26,10 +25,12 @@ class SymbolTable {
         scopeStack.push(scope);
         scopes.add(scope);
 
+        //System.out.println(String.format("Symbol table %s", name));
+
         return scope;
     }
 
-    public Scope popScope(){
+    Scope popScope(){
         return scopeStack.pop();
     }
 
@@ -38,11 +39,15 @@ class SymbolTable {
         Symbol symbol = new Symbol(name, type, value);
 
         scopeStack.peek().addSymbol(symbol);
+        String output = String.format("name %s type %s value %s", name, type, value);
+        //System.out.println(output);
     }
     void createSymbol(String name, String type){
         Symbol symbol = new Symbol(name, type);
 
         scopeStack.peek().addSymbol(symbol);
+        String output = String.format("name %s type %s", name, type);
+        //System.out.println(output);
     }
 
     @Override
