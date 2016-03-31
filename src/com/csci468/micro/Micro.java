@@ -34,7 +34,7 @@ class Micro {
             Listener microListener = new Listener();
             ParseTreeWalker.DEFAULT.walk(microListener, tree);
 
-            System.out.println(microListener);
+            System.out.print(microListener);
 
         }catch(ParseCancellationException e){
             System.out.println(e.getMessage());
