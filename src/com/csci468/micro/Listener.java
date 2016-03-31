@@ -23,34 +23,35 @@ class Listener extends MicroBaseListener {
 
     @Override
     public void exitFuncDecl(MicroParser.FuncDeclContext ctx) {
-
+        //Pop scope
+        microSymbolTable.popScope();
     }
     @Override public void enterParamDecl(MicroParser.ParamDeclContext ctx){
+        //Add parameter to scope
+        microSymbolTable.createSymbol(ctx.id().getText(), ctx.varType().getText());
     }
     @Override
     public void enterIfStmt(MicroParser.IfStmtContext ctx){
-        //Create new scope
-        String name = "BLOCK " + count;
-        count++;
-        microSymbolTable.pushScope(name);
+        createBlockScope();
     }
 
     @Override
     public void enterWhileStmt(MicroParser.WhileStmtContext ctx){
-        //Create new scope
-        String name = "BLOCK " + count;
-        count++;
-        microSymbolTable.pushScope(name);
+        createBlockScope();
     }
 
     @Override
     public void enterElsePart(MicroParser.ElsePartContext ctx){
         if(!ctx.getText().equals("")){
-            String name = "BLOCK " + count;
-            count++;
-
-            microSymbolTable.pushScope(name);
+            createBlockScope();
         }
+    }
+
+    private void createBlockScope() {
+        //Create new scope
+        String name = "BLOCK " + count;
+        count++;
+        microSymbolTable.pushScope(name);
     }
 
     @Override
