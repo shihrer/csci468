@@ -1,0 +1,14 @@
+PROGRAM fibonacci
+BEGIN
+    FUNCTION VOID main ()
+    BEGIN
+        IF (n1 > 2)
+            RETURN F(n1-1)+F(n1-2);
+        ENDIF
+        IF (n1 = 0) --This is a comment
+            RETURN 0;
+        ELSE
+            RETURN 1;
+        ENDIF
+    END
+END
