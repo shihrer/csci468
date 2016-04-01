@@ -70,8 +70,8 @@ addop               : '+' | '-' ;
 mulop               : '*' | '/' ;
 
 /* Complex Statements and Condition */
-ifStmt              : IF '(' cond ')' decl stmtList ENDIF | IF '(' cond ')' decl stmtList elsePart ENDIF;
-elsePart            : ELSE decl stmtList;
+ifStmt              : IF '(' cond ')' decl stmtList elsePart ENDIF;
+elsePart            : ELSE decl stmtList |;
 cond                : expr compop expr;
 compop              : '<' | '>' | '=' | '!=' | '<=' | '>=';
 
