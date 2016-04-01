@@ -7,7 +7,7 @@ package com.csci468.micro;
  */
 
 class Listener extends MicroBaseListener {
-    private int count = 1;
+    private int scopeCount = 1;
 
     private SymbolTable microSymbolTable;
 
@@ -18,13 +18,13 @@ class Listener extends MicroBaseListener {
     @Override
     public void enterFuncDecl(MicroParser.FuncDeclContext ctx) {
         //Create new scope
-        microSymbolTable.pushScope(ctx.id().getText());
+        microSymbolTable.createScope(ctx.id().getText());
     }
 
     @Override
     public void exitFuncDecl(MicroParser.FuncDeclContext ctx) {
         //Pop scope
-        microSymbolTable.popScope();
+        destroyScope();
     }
     @Override public void enterParamDecl(MicroParser.ParamDeclContext ctx){
         //Add parameter to scope
@@ -36,22 +36,51 @@ class Listener extends MicroBaseListener {
     }
 
     @Override
+    public void exitIfStmt(MicroParser.IfStmtContext ctx){
+        destroyScope();
+    }
+
+    @Override
     public void enterWhileStmt(MicroParser.WhileStmtContext ctx){
         createBlockScope();
     }
 
     @Override
-    public void enterElsePart(MicroParser.ElsePartContext ctx){
-        if(!ctx.getText().equals("")){
-            createBlockScope();
-        }
+    public void exitWhileStmt(MicroParser.WhileStmtContext ctx){
+        destroyScope();
     }
+
+    @Override
+    public void enterElsePart(MicroParser.ElsePartContext ctx){
+        if(!ctx.getText().isEmpty())
+            createBlockScope();
+    }
+
+    @Override
+    public void exitElsePart(MicroParser.ElsePartContext ctx){
+        if(!ctx.getText().isEmpty())
+            destroyScope();
+    }
+
+//    @Override
+//    public void enterStmtList(MicroParser.StmtListContext ctx){
+//        createBlockScope();
+//    }
+//
+//    @Override
+//    public void exitStmtList(MicroParser.StmtListContext ctx){
+//        destroyScope();
+//    }
 
     private void createBlockScope() {
         //Create new scope
-        String name = "BLOCK " + count;
-        count++;
-        microSymbolTable.pushScope(name);
+        String name = "BLOCK " + scopeCount;
+        scopeCount++;
+        microSymbolTable.createScope(name);
+    }
+
+    private void destroyScope(){
+        microSymbolTable.destroyScope();
     }
 
     @Override
@@ -70,6 +99,7 @@ class Listener extends MicroBaseListener {
         String input = ctx.getText();
         String names;
 
+        //TODO: Refactor
         if(varType.equals("FLOAT")){
             names = input.substring(5,input.length());
         }
