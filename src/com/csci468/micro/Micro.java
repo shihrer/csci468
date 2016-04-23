@@ -17,9 +17,9 @@ class Micro {
         {
             lexer = new MicroLexer(new ANTLRFileStream(inputPath));
         }
-        catch(IOException e)
+        catch(IOException e2)
         {
-            System.out.println(e.getLocalizedMessage());
+            System.out.println(e2.getLocalizedMessage());
         }
     }
 
