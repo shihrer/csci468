@@ -1,5 +1,7 @@
 package com.csci468.micro;
 
+import java.util.LinkedList;
+
 /**
  * Michael Shihrer
  * Matthew Johnerson
@@ -11,8 +13,11 @@ class Listener extends MicroBaseListener {
 
     private SymbolTable microSymbolTable;
 
+    private LinkedList<IRNode> IRNodes;
+
     Listener(){
         microSymbolTable = new SymbolTable();
+        IRNodes = new LinkedList<>();
     }
 
     @Override
@@ -72,6 +77,13 @@ class Listener extends MicroBaseListener {
 //        destroyScope();
 //    }
 
+    @Override
+    public void enterReadStmt(MicroParser.ReadStmtContext ctx){
+        Symbol readSymbol = microSymbolTable.getSymbol(ctx.idList().id().getText());
+
+        IRNodes.add(new IRNode("READ",readSymbol.getName(), null, null));
+    }
+
     private void createBlockScope() {
         //Create new scope
         String name = "BLOCK " + scopeCount;
@@ -99,6 +111,8 @@ class Listener extends MicroBaseListener {
         String input = ctx.getText();
         String names;
 
+        //String test = ctx.idList().idTail().
+
         //TODO: Refactor
         if(varType.equals("FLOAT")){
             names = input.substring(5,input.length());
@@ -112,6 +126,12 @@ class Listener extends MicroBaseListener {
             s = s.replace(";","");
             microSymbolTable.createSymbol(s,varType);
         }
+    }
+
+    @Override
+    public void enterIdList(MicroParser.IdListContext ctx){
+        //String id = ctx.id().getText();
+        //microSymbolTable.createSymbol(c)
     }
 
     @Override
