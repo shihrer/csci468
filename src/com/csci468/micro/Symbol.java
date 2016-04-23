@@ -6,20 +6,25 @@ package com.csci468.micro;
  * 28 March 2016
  */
 class Symbol {
-    protected String name;
-    protected String type;
-    protected String value;
+    private String name;
+    private String type;
+    private String value;
 
-    public Symbol(String name, String type, String value){
+    Symbol(String name, String type, String value){
         this.name = name;
         this.type = type;
         this.value = value;
     }
 
-    public Symbol(String name, String type){
+    Symbol(String name, String type){
         this.name = name;
         this.type = type;
         this.value = "";
+    }
+
+    String getName()
+    {
+        return name;
     }
 
     @Override

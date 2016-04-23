@@ -58,6 +58,16 @@ class SymbolTable {
         return symbol;
     }
 
+    Symbol getSymbol(String ID){
+        for (Scope aScopeStack : scopeStack) {
+            if (aScopeStack.hasSymbol(ID)) {
+                return aScopeStack.getSymbol(ID);
+            }
+        }
+
+        return null;
+    }
+
     @Override
     public String toString(){
         StringBuilder output = new StringBuilder();
