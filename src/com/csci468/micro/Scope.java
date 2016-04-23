@@ -25,10 +25,10 @@ class Scope {
     void addSymbol(Symbol symbol){
         //Create new symbol
         //Add it to a scope
-        if(!symbolMap.containsKey(symbol.name)){
-            symbolMap.put(symbol.name, symbol);
+        if(!symbolMap.containsKey(symbol.getName())){
+            symbolMap.put(symbol.getName(), symbol);
         }else{
-            throw new ParseCancellationException(String.format("DECLARATION ERROR %s", symbol.name));
+            throw new ParseCancellationException(String.format("DECLARATION ERROR %s", symbol.getName()));
         }
     }
 
@@ -46,5 +46,13 @@ class Scope {
             output.append(symbol);
         }
         return output.toString();
+    }
+
+    Boolean hasSymbol(String ID){
+        return this.symbolMap.containsKey(ID);
+    }
+
+    Symbol getSymbol(String ID) {
+        return this.symbolMap.get(ID);
     }
 }
