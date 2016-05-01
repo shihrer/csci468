@@ -101,7 +101,7 @@ class Listener extends MicroBaseListener {
         String name = ctx.id().getText();
         String value = ctx.str().getText();
         String type = ctx.STRING().getText();
-        microSymbolTable.createSymbol(name, type,value);
+        microSymbolTable.createSymbol(name, type, value);
     }
 
     @Override
@@ -115,16 +115,16 @@ class Listener extends MicroBaseListener {
 
         //TODO: Refactor
         if(varType.equals("FLOAT")){
-            names = input.substring(5,input.length());
+            names = input.substring(5, input.length());
         }
         else {
-            names = input.substring(3,input.length());
+            names = input.substring(3, input.length());
         }
 
         String[] tokens = names.split(",");
         for (String s : tokens){
             s = s.replace(";","");
-            microSymbolTable.createSymbol(s,varType);
+            microSymbolTable.createSymbol(s, varType);
         }
     }
 
