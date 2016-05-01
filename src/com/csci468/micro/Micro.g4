@@ -1,8 +1,7 @@
 grammar Micro;
 
 /* Program */
-program             : PROGRAM id BEGIN body END;
-id                  : IDENTIFIER;
+program             : PROGRAM ID BEGIN body END;
 
 /* Program Body */
 body                : decl funcDeclarations;
@@ -10,8 +9,7 @@ decl                : stringDecl decl |
                       varDecl decl |;
 
 /* Global String Declaration */
-stringDecl          : STRING id ':=' str ';';
-str                 : STRINGLITERAL;
+stringDecl          : STRING ID ASSIGNOP STRINGLITERAL ';';
 
 /* Variable Declaration */
 varDecl             : varType idList ';';
@@ -19,17 +17,17 @@ varType             : FLOAT |
                       INT;
 anyType             : varType |
                       VOID;
-idList              : id idTail;
-idTail              : ',' id idTail |;
+idList              : ID idTail;
+idTail              : ',' ID idTail |;
 
 /* Function Paramater List */
 paramDeclList       : paramDecl paramDeclTail |;
-paramDecl           : varType id;
+paramDecl           : varType ID;
 paramDeclTail       : ',' paramDecl paramDeclTail |;
 
 /* Function Declarations */
 funcDeclarations    : funcDecl funcDeclarations |;
-funcDecl            : FUNCTION anyType id '(' paramDeclList ')' BEGIN funcBody END;
+funcDecl            : FUNCTION anyType ID '(' paramDeclList ')' BEGIN funcBody END;
 funcBody            : decl stmtList;
 
 /* Statement List */
@@ -47,33 +45,30 @@ baseStmt            : assignStmt    |
 
 /* Basic Statements */
 assignStmt          : assignExpr ';';
-assignExpr          : id ':=' expr;
+assignExpr          : ID ASSIGNOP expr;
 readStmt            : READ '(' idList ')' ';';
 writeStmt           : WRITE '(' idList ')' ';';
 returnStmt          : RETURN expr ';';
 
 /* Expressions */
 expr                : exprPrefix factor;
-exprPrefix          : exprPrefix factor addop |;
+exprPrefix          : exprPrefix factor ADDOP |;
 factor              : factorPrefix postfixExpr;
-factorPrefix        : factorPrefix postfixExpr mulop |;
+factorPrefix        : factorPrefix postfixExpr MULOP |;
 postfixExpr         : primary |
                       callExpr;
-callExpr            : id '(' exprList ')';
+callExpr            : ID '(' exprList ')';
 exprList            : expr exprListTail |;
 exprListTail        : ',' expr exprListTail |;
 primary             : '(' expr ')'  |
-                      id            |
+                      ID            |
                       INTLITERAL    |
                       FLOATLITERAL;
-addop               : '+' | '-' ;
-mulop               : '*' | '/' ;
 
 /* Complex Statements and Condition */
 ifStmt              : IF '(' cond ')' decl stmtList elsePart ENDIF;
 elsePart            : ELSE decl stmtList |;
-cond                : expr compop expr;
-compop              : '<' | '>' | '=' | '!=' | '<=' | '>=';
+cond                : expr COMPOP expr;
 
 /* While statements */
 whileStmt           : WHILE '(' cond ')' decl stmtList ENDWHILE;
@@ -101,29 +96,22 @@ STRING      : 'STRING'  ;
 FLOAT       : 'FLOAT'   ;
 
 /*Doesn't really do anything...*/
+ASSIGNOP : ':=';
+COMPOP              : '<' | '>' | '=' | '!=' | '<=' | '>=';
+ADDOP               : '+' | '-' ;
+MULOP               : '*' | '/' ;
 OPERATOR
-    : ':='
-    | '+'
-    | '-'
-    | '*'
-    | '/'
-    | '='
-    | '!='
-    | '<'
-    | '>'
-    | '('
+    : '('
     | ')'
     | ';'
     | ','
-    | '<='
-    | '>='
     ;
 
 STRINGLITERAL
     : '"'~('"')*'"'
     ;
 
-IDENTIFIER
+ID
     : [a-zA-Z][a-zA-Z0-9]*
     ;
 

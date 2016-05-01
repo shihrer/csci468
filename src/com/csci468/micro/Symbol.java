@@ -26,6 +26,7 @@ class Symbol {
     {
         return name;
     }
+    String getType() { return type; }
 
     @Override
     public String toString(){

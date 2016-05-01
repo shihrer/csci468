@@ -25,6 +25,15 @@ class SymbolTable {
         scopes.add(global);
     }
 
+    Scope createScope(int scopeCount){
+        Scope scope = new Scope(scopeCount);
+        scopeStack.push(scope);
+        scopes.add(scope);
+
+        //System.out.println(String.format("Symbol table %s", name));
+        return scope;
+    }
+
     Scope createScope(String name){
         Scope scope = new Scope(name);
         scopeStack.push(scope);

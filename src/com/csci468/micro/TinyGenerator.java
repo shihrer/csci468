@@ -47,12 +47,12 @@ class TinyGenerator {
                     break;
                 //Read inputs
                 case "READI":
-                case "READR":
+                case "READF":
                     tiny.append(String.format("sys %s %s\n", opcode.toLowerCase(), f1));
                     break;
                 //Assignment statements
                 case "STOREI":
-                case "STORER":
+                case "STOREF":
                     //check to catch statements such as a := b;
                     if(!f1.contains("$") && !f2.contains("$")){
                         tiny.append(String.format("move %s %s\n", f1.replace("$T", "r"), temp));
@@ -141,5 +141,5 @@ class TinyGenerator {
         tiny.insert(0, vars);
     }
 
-    public StringBuilder getTiny(){ return tiny; }
+    String getTiny(){ return tiny.toString(); }
 }

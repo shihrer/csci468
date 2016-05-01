@@ -10,6 +10,8 @@ class IRNode {
     //Result
     private String _result;
 
+    private String _branch;
+
     IRNode(String OPCode, String OP1, String OP2, String Result){
         this._opcode = OPCode;
         this._operand1 = OP1;
@@ -17,8 +19,12 @@ class IRNode {
         this._result = Result;
     }
 
-    public String getIRCode(){
+    String getIRCode(){
         return String.format("%s %s %s %s",_opcode, _operand1, _operand2, _result);
+    }
+
+    public String getBranch(){
+        return _branch;
     }
 
     String get_opcode() { return _opcode; }

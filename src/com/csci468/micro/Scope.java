@@ -15,32 +15,39 @@ class Scope {
     private Map<String, Symbol> symbolMap;
 
     private String name;
+    private int blockNumber;
 
-    Scope(String name){
+    Scope(String name) {
         this.name = name;
         symbolMap = new LinkedHashMap<>();
     }
 
+    Scope(int blockNumber) {
+        this.name = "BLOCK " + blockNumber;
+        this.blockNumber = blockNumber;
+        symbolMap = new LinkedHashMap<>();
+    }
+
     //Add method to insert a symbol to the scope
-    void addSymbol(Symbol symbol){
+    void addSymbol(Symbol symbol) {
         //Create new symbol
         //Add it to a scope
-        if(!symbolMap.containsKey(symbol.getName())){
+        if (!symbolMap.containsKey(symbol.getName())) {
             symbolMap.put(symbol.getName(), symbol);
-        }else{
+        } else {
             throw new ParseCancellationException(String.format("DECLARATION ERROR %s", symbol.getName()));
         }
     }
 
-    public String toString(){
+    public String toString() {
         StringBuilder output = new StringBuilder();
-        if(this.name.equals("GLOBAL")){
+        if (this.name.equals("GLOBAL")) {
             output.append(String.format("Symbol table %s\n", this.name));
-        }else {
+        } else {
             output.append(String.format("\nSymbol table %s\n", this.name));
         }
         //Append symbols
-        for(Map.Entry<String, Symbol> entry : symbolMap.entrySet()){
+        for (Map.Entry<String, Symbol> entry : symbolMap.entrySet()) {
             Symbol symbol = entry.getValue();
 
             output.append(symbol);
@@ -48,11 +55,15 @@ class Scope {
         return output.toString();
     }
 
-    Boolean hasSymbol(String ID){
+    Boolean hasSymbol(String ID) {
         return this.symbolMap.containsKey(ID);
     }
 
     Symbol getSymbol(String ID) {
         return this.symbolMap.get(ID);
+    }
+
+    int getBlockNumber() {
+        return this.blockNumber;
     }
 }
