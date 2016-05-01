@@ -20,9 +20,9 @@ class Listener extends MicroBaseListener {
     private SymbolTable microSymbolTable;
 
     private LinkedList<IRNode> IRNodes;
-
-    private Stack<String> irStack;
     private Stack<Integer> labelStack;
+    private Stack<String> operatorStack = new Stack<>();
+    private Stack<String> exprStack = new Stack<>();
 
     private ParseTreeProperty<String> irProperties = new ParseTreeProperty<>();
 
@@ -37,7 +37,6 @@ class Listener extends MicroBaseListener {
     Listener(LinkedList<IRNode> IRNodes) {
         microSymbolTable = new SymbolTable();
         this.IRNodes = IRNodes;
-        this.irStack = new Stack<>();
         this.labelStack = new Stack<>();
     }
 
@@ -142,15 +141,7 @@ class Listener extends MicroBaseListener {
         String varType = ctx.varType().getText();
         //Create an entry in the current scope
         String input = ctx.getText();
-        String names;
-
-        //String test = ctx.idList().idTail().
-        //TODO: Refactor
-        if (varType.equals("FLOAT")) {
-            names = input.substring(5, input.length());
-        } else {
-            names = input.substring(3, input.length());
-        }
+        String names = ctx.idList().getText();
 
         String[] tokens = names.split(",");
         for (String s : tokens) {
@@ -163,22 +154,55 @@ class Listener extends MicroBaseListener {
     public void exitAssignExpr(MicroParser.AssignExprContext ctx) {
         //id of what we're assigning to
         String OPCode;
-        String OP1 = irStack.pop();
         String ID = ctx.ID().toString();
         String type = microSymbolTable.getSymbol(ID).getType();
 
-        if (type.equals("INT"))
-            OPCode = "STOREI";
-        else
-            OPCode = "STOREF";
+        switch (type) {
+            case "INT":
+                OPCode = "STOREI";
+                break;
+            case "FLOAT":
+                OPCode = "STOREF";
+                break;
+            default:
+                OPCode = "STORES";
+                break;
+        }
 
         String tempReg = "$T" + tempCount;
         tempCount++;
 
         //newapprox := 0.5*(approx + num/approx);
+        while (!exprStack.empty()) {
+            String OP1 = exprStack.pop();
+            int i = 0;
 
-        IRNodes.add(new IRNode(OPCode, OP1, tempReg, null));
-        IRNodes.add(new IRNode(OPCode, tempReg, ID, null));
+            IRNodes.add(new IRNode(OPCode, OP1, tempReg, null));
+
+            while (!operatorStack.empty()) {
+                String operator = operatorStack.pop();
+                String code;
+                switch (operator) {
+                    case "+":
+                        code = "ADDI";
+                        break;
+                    case "-":
+                        code = "SUBI";
+                        break;
+                    case "*":
+                        code = "MULTI";
+                        break;
+                    default:
+                        code = "";
+                        break;
+                }
+                String newTempReg = "$T" + tempCount;
+                tempCount++;
+                IRNodes.add(new IRNode(code, ID, tempReg, newTempReg));
+                tempReg = newTempReg;
+            }
+            IRNodes.add(new IRNode(OPCode, tempReg, ID, null));
+        }
     }
 
     @Override
@@ -206,11 +230,59 @@ class Listener extends MicroBaseListener {
                 OPCode.append("NEI");
                 break;
         }
+        String op1;
+        String op2;
+        while (!exprStack.empty()) {
+            op1 = exprStack.pop();
+            op2 = exprStack.pop();
+            String temp = "$T" + tempCount;
+            IRNodes.add(new IRNode("STOREI", op1, temp, ""));
+            IRNodes.add(new IRNode(OPCode.toString(), op2, temp, "label" + labelCount));
+            labelStack.push(labelCount);
+            labelCount++;
+            tempCount++;
+        }
+    }
 
-        //IRNodes.add(new IRNode("STOREI", "10", "$T3", ""));
-        IRNodes.add(new IRNode(OPCode.toString(), "i", "$T3", "label" + labelCount));
-        labelStack.push(labelCount);
-        labelCount++;
+    @Override
+    public void exitWriteStmt(MicroParser.WriteStmtContext ctx) {
+        //Create an entry in the current scope
+        String input = ctx.getText();
+        String names = ctx.idList().getText();
+
+        String[] tokens = names.split(",");
+        for (String s : tokens) {
+            Symbol writeSymbol = microSymbolTable.getSymbol(s);
+            switch (writeSymbol.getType()) {
+                case "INT":
+                    IRNodes.add(new IRNode("WRITEI", writeSymbol.getName(), null, null));
+                    break;
+                case "FLOAT":
+                    IRNodes.add(new IRNode("WRITER", writeSymbol.getName(), null, null));
+                    break;
+                case "STRING":
+                    IRNodes.add(new IRNode("WRITES", writeSymbol.getName(), null, null));
+                    break;
+            }
+        }
+
+    }
+
+    @Override
+    public void exitExprPrefix(MicroParser.ExprPrefixContext ctx) {
+        if (ctx.ADDOP() != null)
+            operatorStack.push(ctx.ADDOP().toString());
+    }
+
+    @Override
+    public void exitFactorPrefix(MicroParser.FactorPrefixContext ctx){
+        if(ctx.MULOP() != null)
+            operatorStack.push(ctx.MULOP().toString());
+    }
+
+    @Override
+    public void exitPrimary(MicroParser.PrimaryContext ctx) {
+        exprStack.push(ctx.getText());
     }
 
     @Override

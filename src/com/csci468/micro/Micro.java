@@ -96,8 +96,8 @@ class Micro {
 //            list.add(new IRNode("RET", "", "", ""));
 
             for (IRNode irNode : irNodes) System.out.println(irNode.getIRCode());
-            //TinyGenerator gen = new TinyGenerator(irNodes);
-            //System.out.print(gen.getTiny());
+            TinyGenerator gen = new TinyGenerator(irNodes);
+            System.out.print(gen.getTiny());
             //System.out.print(microListener);
 
         }catch(ParseCancellationException e){

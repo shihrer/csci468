@@ -20,7 +20,7 @@ class IRNode {
     }
 
     String getIRCode(){
-        return String.format("%s %s %s %s",_opcode, _operand1, _operand2, _result);
+        return String.format("; %s %s %s %s",_opcode, _operand1, _operand2, _result);
     }
 
     public String getBranch(){
