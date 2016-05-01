@@ -20,4 +20,9 @@ class IRNode {
     public String getIRCode(){
         return String.format("%s %s %s %s",_opcode, _operand1, _operand2, _result);
     }
+
+    String get_opcode() { return _opcode; }
+    String get_first() { return _operand1; }
+    String get_second() { return _operand2; }
+    String get_third() { return _result; }
 }
