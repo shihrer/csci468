@@ -21,7 +21,8 @@ class Listener extends MicroBaseListener {
 
     private LinkedList<IRNode> IRNodes;
     private Stack<Integer> labelStack;
-    private Stack<Expression> exprStack = new Stack<>();  //Instead of just a string, make it a class that holds type
+    private LinkedList<Expression> exprStack = new LinkedList<>();  //Instead of just a string, make it a class that holds type
+    private LinkedList<Expression> opStack = new LinkedList<>();
 
     Listener(LinkedList<IRNode> IRNodes) {
         microSymbolTable = new SymbolTable();
@@ -167,7 +168,7 @@ class Listener extends MicroBaseListener {
         String tempReg = "$T" + tempCount;
         tempCount++;
 
-        if (!exprStack.empty()) {
+        if (exprStack.size() > 0) {
             Expression OP1 = exprStack.pop();
             IRNodes.add(new IRNode(OPCode, OP1.getName(), tempReg, ""));
         }
@@ -266,7 +267,7 @@ class Listener extends MicroBaseListener {
     public void exitExprPrefix(MicroParser.ExprPrefixContext ctx) {
         if (ctx.ADDOP() != null){
             Expression newExpr = new Expression(ctx.ADDOP().toString(), "OPERATOR");
-            exprStack.push(newExpr);
+            opStack.add(newExpr);
         }
     }
 
@@ -274,7 +275,7 @@ class Listener extends MicroBaseListener {
     public void exitFactorPrefix(MicroParser.FactorPrefixContext ctx){
         if(ctx.MULOP() != null){
             Expression newExpr = new Expression(ctx.MULOP().toString(), "OPERATOR");
-            exprStack.push(newExpr);
+            opStack.add(newExpr);
         }
     }
 
@@ -295,7 +296,7 @@ class Listener extends MicroBaseListener {
             else if(ctx.ID() != null)
                 type = microSymbolTable.getSymbol(ctx.ID().toString()).getType();
             Expression newExpr = new Expression(ctx.getText(), type);
-            exprStack.push(newExpr);
+            exprStack.add(newExpr);
         }
     }
 
@@ -305,52 +306,54 @@ class Listener extends MicroBaseListener {
     }
 
     private void buildExpression(){
-        if(exprStack.size() > 2) {
-            //Need to determine type
-            IRNode exprNode;
-            Expression op2 = exprStack.pop();
-            Expression operator = exprStack.pop();
-            Expression op1 = exprStack.pop();
+        if(exprStack.size() > 1) {
+            while(opStack.size() > 0) {
+                //Need to determine type
+                IRNode exprNode;
+                Expression op2 = exprStack.pop();
+                Expression operator = opStack.pop();
+                Expression op1 = exprStack.pop();
 
-            if(op1.getType().equals("INT") && op2.getType().equals("INT")){
-                Expression result = new Expression("$T" + tempCount, "INT");
-                exprStack.push(result);
-                tempCount++;
-                switch (operator.getName()) {
-                    case "+":
-                        exprNode = new IRNode("ADDI", op1.getName(), op2.getName(), result.getName());
-                        break;
-                    case "-":
-                        exprNode = new IRNode("SUBI", op1.getName(), op2.getName(), result.getName());
-                        break;
-                    case "*":
-                        exprNode = new IRNode("MULI", op1.getName(), op2.getName(), result.getName());
-                        break;
-                    default:
-                        exprNode = new IRNode("DIVI", op1.getName(), op2.getName(), result.getName());
-                        break;
-                }
-            } else{
-                Expression result = new Expression("$T" + tempCount, "FLOAT");
-                exprStack.push(result);
-                tempCount++;
-                switch (operator.getName()) {
-                    case "+":
-                        exprNode = new IRNode("ADDR", op1.getName(), op2.getName(), result.getName());
-                        break;
-                    case "-":
-                        exprNode = new IRNode("SUBR", op1.getName(), op2.getName(), result.getName());
-                        break;
-                    case "*":
-                        exprNode = new IRNode("MULR", op1.getName(), op2.getName(), result.getName());
-                        break;
-                    default:
-                        exprNode = new IRNode("DIVR", op1.getName(), op2.getName(), result.getName());
-                        break;
-                }
+                if (op1.getType().equals("INT") && op2.getType().equals("INT")) {
+                    Expression result = new Expression("$T" + tempCount, "INT");
+                    exprStack.add(result);
+                    tempCount++;
+                    switch (operator.getName()) {
+                        case "+":
+                            exprNode = new IRNode("ADDI", op1.getName(), op2.getName(), result.getName());
+                            break;
+                        case "-":
+                            exprNode = new IRNode("SUBI", op1.getName(), op2.getName(), result.getName());
+                            break;
+                        case "*":
+                            exprNode = new IRNode("MULI", op1.getName(), op2.getName(), result.getName());
+                            break;
+                        default:
+                            exprNode = new IRNode("DIVI", op1.getName(), op2.getName(), result.getName());
+                            break;
+                    }
+                } else {
+                    Expression result = new Expression("$T" + tempCount, "FLOAT");
+                    exprStack.add(result);
+                    tempCount++;
+                    switch (operator.getName()) {
+                        case "+":
+                            exprNode = new IRNode("ADDR", op1.getName(), op2.getName(), result.getName());
+                            break;
+                        case "-":
+                            exprNode = new IRNode("SUBR", op1.getName(), op2.getName(), result.getName());
+                            break;
+                        case "*":
+                            exprNode = new IRNode("MULR", op1.getName(), op2.getName(), result.getName());
+                            break;
+                        default:
+                            exprNode = new IRNode("DIVR", op1.getName(), op2.getName(), result.getName());
+                            break;
+                    }
 
+                }
+                IRNodes.add(exprNode);
             }
-            IRNodes.add(exprNode);
         }
     }
 }
