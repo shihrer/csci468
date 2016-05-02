@@ -21,8 +21,8 @@ class Listener extends MicroBaseListener {
 
     private LinkedList<IRNode> IRNodes;
     private Stack<Integer> labelStack;
-    private LinkedList<Expression> exprStack = new LinkedList<>();  //Instead of just a string, make it a class that holds type
-    private LinkedList<Expression> opStack = new LinkedList<>();
+    private Stack<Expression> exprStack = new Stack<>();
+//    private LinkedList<Expression> opStack = new LinkedList<>();
 
     Listener(LinkedList<IRNode> IRNodes) {
         microSymbolTable = new SymbolTable();
@@ -78,22 +78,19 @@ class Listener extends MicroBaseListener {
     }
 
     @Override
-    public void enterElsePart(MicroParser.ElsePartContext ctx) {
-        if (!ctx.getText().isEmpty()) {
-            createBlockScope();
+    public void enterElse(MicroParser.ElseContext ctx) {
+        createBlockScope();
 
-            int curLabel = labelStack.pop();
-            IRNodes.add(new IRNode("JUMP", "label" + labelCount, "", ""));
-            IRNodes.add(new IRNode("LABEL", "label" + curLabel, "", ""));
-            labelStack.push(labelCount);
-            labelCount++;
-        }
+        int curLabel = labelStack.pop();
+        IRNodes.add(new IRNode("JUMP", "label" + labelCount, "", ""));
+        IRNodes.add(new IRNode("LABEL", "label" + curLabel, "", ""));
+        labelStack.push(labelCount);
+        labelCount++;
     }
 
     @Override
-    public void exitElsePart(MicroParser.ElsePartContext ctx) {
-        if (!ctx.getText().isEmpty())
-            destroyScope();
+    public void exitElse(MicroParser.ElseContext ctx) {
+        destroyScope();
     }
 
     @Override
@@ -134,7 +131,7 @@ class Listener extends MicroBaseListener {
     @Override
     public void enterVarDecl(MicroParser.VarDeclContext ctx) {
         String varType = ctx.varType().getText();
-        //Create an entry in the current scope
+        // Create an entry in the current scope
         String names = ctx.idList().getText();
 
         String[] tokens = names.split(",");
@@ -246,11 +243,9 @@ class Listener extends MicroBaseListener {
     @Override
     public void exitWriteStmt(MicroParser.WriteStmtContext ctx) {
         //Create an entry in the current scope
-        String input = ctx.getText();
         String names = ctx.idList().getText();
 
-        String[] tokens = names.split(",");
-        for (String s : tokens) {
+        for (String s : names.split(",")) {
             Symbol writeSymbol = microSymbolTable.getSymbol(s);
             switch (writeSymbol.getType()) {
                 case "INT":
@@ -270,37 +265,18 @@ class Listener extends MicroBaseListener {
     @Override
     public void exitADDOP(MicroParser.ADDOPContext ctx) {
         Expression newExpr = new Expression(ctx.ADDOP().toString(), "OPERATOR");
-        opStack.add(newExpr);
+        exprStack.push(newExpr);
     }
 
     @Override
     public void exitMULOP(MicroParser.MULOPContext ctx){
         Expression newExpr = new Expression(ctx.MULOP().toString(), "OPERATOR");
-        opStack.add(newExpr);
+        exprStack.push(newExpr);
     }
 
-    @Override
-    public void exitFactor(MicroParser.FactorContext ctx){
-        if(!(ctx.parent instanceof MicroParser.ExprPrefixContext))
-            buildExpression();
-    }
-
-//    @Override
-//    public void exitPrimary(MicroParser.PrimaryContext ctx) {
-//        if(ctx.getChildCount() == 1){
-//            String type = "";
-//            if(ctx.FLOATLITERAL() != null)
-//                type = "FLOAT";
-//            else if(ctx.INTLITERAL() != null)
-//                type = "INT";
-//            else if(ctx.ID() != null)
-//                type = microSymbolTable.getSymbol(ctx.ID().toString()).getType();
-//            Expression newExpr = new Expression(ctx.getText(), type);
-//            exprStack.add(newExpr);
-//        }
-//    }
     @Override public void exitPrimaryID(MicroParser.PrimaryIDContext ctx) {
         exprStack.add(new Expression(ctx.getText(), microSymbolTable.getSymbol(ctx.ID().toString()).getType()));
+        exprDepth++;
     }
     @Override
     public void exitPrimaryINT(MicroParser.PrimaryINTContext ctx){
@@ -310,14 +286,20 @@ class Listener extends MicroBaseListener {
     public void exitPrimaryFLOAT(MicroParser.PrimaryFLOATContext ctx){
         exprStack.add(new Expression(ctx.getText(), "FLOAT"));
     }
-
+    private int exprDepth = 0;
     @Override
     public void exitParanths(MicroParser.ParanthsContext ctx){
-        while(exprStack.size() > 1){
+        //I need to evaluate all children
+        for(int i = 0; i < exprDepth - 1; i++)
             buildExpression();
-        }
+        exprDepth = 0;
     }
 
+    @Override
+    public void exitFactor(MicroParser.FactorContext ctx){
+        if(exprStack.size() == 3 && !ctx.factorPrefix().getText().equals(""))
+            buildExpression();
+    }
     @Override
     public void exitStringDecl(MicroParser.StringDeclContext ctx){
         IRNodes.add(new IRNode("STR", ctx.ID().toString(), ctx.STRINGLITERAL().toString(), ""));
@@ -329,54 +311,52 @@ class Listener extends MicroBaseListener {
     }
 
     private void buildExpression(){
-        if(exprStack.size() > 1) {
-            while(opStack.size() > 0) {
-                //Need to determine type
-                IRNode exprNode;
-                Expression op1 = exprStack.pop();
-                Expression operator = opStack.pop();
-                Expression op2 = exprStack.pop();
+        if(exprStack.size() > 2) {
+            //Need to determine type
+            IRNode exprNode;
+            Expression op2 = exprStack.pop();
+            Expression operator = exprStack.pop();
+            Expression op1 = exprStack.pop();
 
-                if (op1.getType().equals("INT") && op2.getType().equals("INT")) {
-                    Expression result = new Expression("$T" + tempCount, "INT");
-                    exprStack.add(result);
-                    tempCount++;
-                    switch (operator.getName()) {
-                        case "+":
-                            exprNode = new IRNode("ADDI", op1.getName(), op2.getName(), result.getName());
-                            break;
-                        case "-":
-                            exprNode = new IRNode("SUBI", op1.getName(), op2.getName(), result.getName());
-                            break;
-                        case "*":
-                            exprNode = new IRNode("MULI", op1.getName(), op2.getName(), result.getName());
-                            break;
-                        default:
-                            exprNode = new IRNode("DIVI", op1.getName(), op2.getName(), result.getName());
-                            break;
-                    }
-                } else {
-                    Expression result = new Expression("$T" + tempCount, "FLOAT");
-                    exprStack.add(result);
-                    tempCount++;
-                    switch (operator.getName()) {
-                        case "+":
-                            exprNode = new IRNode("ADDR", op1.getName(), op2.getName(), result.getName());
-                            break;
-                        case "-":
-                            exprNode = new IRNode("SUBR", op1.getName(), op2.getName(), result.getName());
-                            break;
-                        case "*":
-                            exprNode = new IRNode("MULR", op1.getName(), op2.getName(), result.getName());
-                            break;
-                        default:
-                            exprNode = new IRNode("DIVR", op1.getName(), op2.getName(), result.getName());
-                            break;
-                    }
-
+            if (op1.getType().equals("INT") && op2.getType().equals("INT")) {
+                Expression result = new Expression("$T" + tempCount, "INT");
+                exprStack.push(result);
+                tempCount++;
+                switch (operator.getName()) {
+                    case "+":
+                        exprNode = new IRNode("ADDI", op1.getName(), op2.getName(), result.getName());
+                        break;
+                    case "-":
+                        exprNode = new IRNode("SUBI", op1.getName(), op2.getName(), result.getName());
+                        break;
+                    case "*":
+                        exprNode = new IRNode("MULI", op1.getName(), op2.getName(), result.getName());
+                        break;
+                    default:
+                        exprNode = new IRNode("DIVI", op1.getName(), op2.getName(), result.getName());
+                        break;
                 }
-                IRNodes.add(exprNode);
+            } else {
+                Expression result = new Expression("$T" + tempCount, "FLOAT");
+                exprStack.push(result);
+                tempCount++;
+                switch (operator.getName()) {
+                    case "+":
+                        exprNode = new IRNode("ADDR", op1.getName(), op2.getName(), result.getName());
+                        break;
+                    case "-":
+                        exprNode = new IRNode("SUBR", op1.getName(), op2.getName(), result.getName());
+                        break;
+                    case "*":
+                        exprNode = new IRNode("MULR", op1.getName(), op2.getName(), result.getName());
+                        break;
+                    default:
+                        exprNode = new IRNode("DIVR", op1.getName(), op2.getName(), result.getName());
+                        break;
+                }
+
             }
+            IRNodes.add(exprNode);
         }
     }
 }
