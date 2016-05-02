@@ -154,6 +154,12 @@ class Listener extends MicroBaseListener {
     public void exitAssignExpr(MicroParser.AssignExprContext ctx) {
         // Store results of whatever expression is evaluated to the context ID
         //id of what we're assigning to
+        //Clear out expression stack
+        while(exprStack.size() > 1)
+        {
+            buildExpression();
+        }
+
         String OPCode;
         String ID = ctx.ID().toString();
         String type = microSymbolTable.getSymbol(ID).getType();
@@ -255,13 +261,45 @@ class Listener extends MicroBaseListener {
     }
 
     @Override
-    public void exitExpr(MicroParser.ExprContext ctx){
-        // I need to determine the results of the expr and save that to the stack.
+    public void exitExprPrefix(MicroParser.ExprPrefixContext ctx) {
+        if (ctx.ADDOP() != null){
+            exprStack.push(ctx.ADDOP().toString());
+        }
+//        buildExpression();
+    }
+
+    @Override
+    public void exitFactorPrefix(MicroParser.FactorPrefixContext ctx){
+        if(ctx.MULOP() != null){
+            exprStack.push(ctx.MULOP().toString());
+        }
+//        buildExpression();
+    }
+
+    @Override
+    public void exitFactor(MicroParser.FactorContext ctx){
+        buildExpression();
+    }
+
+    @Override
+    public void exitPrimary(MicroParser.PrimaryContext ctx) {
+        if(ctx.getChildCount() == 1)
+            exprStack.push(ctx.getText());
+
+//        buildExpression();
+    }
+
+    @Override
+    public String toString() {
+        return microSymbolTable.toString();
+    }
+
+    private void buildExpression(){
         if(exprStack.size() > 2) {
             IRNode exprNode;
-            String op1 = exprStack.pop();
-            String operator = exprStack.pop();
             String op2 = exprStack.pop();
+            String operator = exprStack.pop();
+            String op1 = exprStack.pop();
             String result = "$T" + tempCount;
             exprStack.push(result);
             tempCount++;
@@ -283,29 +321,5 @@ class Listener extends MicroBaseListener {
             IRNodes.add(exprNode);
             //push results back to expr stack so that they can be used later.
         }
-    }
-
-    @Override
-    public void exitExprPrefix(MicroParser.ExprPrefixContext ctx) {
-        if (ctx.ADDOP() != null){
-            exprStack.push(ctx.ADDOP().toString());
-        }
-    }
-
-    @Override
-    public void exitFactorPrefix(MicroParser.FactorPrefixContext ctx){
-        if(ctx.MULOP() != null){
-            exprStack.push(ctx.MULOP().toString());
-        }
-    }
-
-    @Override
-    public void exitPrimary(MicroParser.PrimaryContext ctx) {
-        exprStack.push(ctx.getText());
-    }
-
-    @Override
-    public String toString() {
-        return microSymbolTable.toString();
     }
 }
