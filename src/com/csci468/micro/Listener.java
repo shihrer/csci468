@@ -15,13 +15,12 @@ import java.util.Stack;
 class Listener extends MicroBaseListener {
     private int scopeCount = 1;
     private int labelCount = 1;
-    private int tempCount = 1;
+    private int tempCount = 0;
 
     private SymbolTable microSymbolTable;
 
     private LinkedList<IRNode> IRNodes;
     private Stack<Integer> labelStack;
-    private Stack<String> operatorStack = new Stack<>();
     private Stack<String> exprStack = new Stack<>();
 
     private ParseTreeProperty<String> irProperties = new ParseTreeProperty<>();
