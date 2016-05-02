@@ -101,7 +101,7 @@ class Listener extends MicroBaseListener {
 
         String ids = ctx.idList().getText();
 
-        for (String id : names.split(",")) {
+        for (String id : ids.split(",")) {
             Symbol readSymbol = microSymbolTable.getSymbol(id);
             if (readSymbol.getType().equals("INT"))
                 IRNodes.add(new IRNode("READI", readSymbol.getName(), "", ""));
