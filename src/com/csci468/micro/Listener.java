@@ -268,19 +268,15 @@ class Listener extends MicroBaseListener {
     }
 
     @Override
-    public void exitExprPrefix(MicroParser.ExprPrefixContext ctx) {
-        if (ctx.ADDOP() != null){
-            Expression newExpr = new Expression(ctx.ADDOP().toString(), "OPERATOR");
-            opStack.add(newExpr);
-        }
+    public void exitADDOP(MicroParser.ADDOPContext ctx) {
+        Expression newExpr = new Expression(ctx.ADDOP().toString(), "OPERATOR");
+        opStack.add(newExpr);
     }
 
     @Override
-    public void exitFactorPrefix(MicroParser.FactorPrefixContext ctx){
-        if(ctx.MULOP() != null){
-            Expression newExpr = new Expression(ctx.MULOP().toString(), "OPERATOR");
-            opStack.add(newExpr);
-        }
+    public void exitMULOP(MicroParser.MULOPContext ctx){
+        Expression newExpr = new Expression(ctx.MULOP().toString(), "OPERATOR");
+        opStack.add(newExpr);
     }
 
     @Override
@@ -289,18 +285,36 @@ class Listener extends MicroBaseListener {
             buildExpression();
     }
 
+//    @Override
+//    public void exitPrimary(MicroParser.PrimaryContext ctx) {
+//        if(ctx.getChildCount() == 1){
+//            String type = "";
+//            if(ctx.FLOATLITERAL() != null)
+//                type = "FLOAT";
+//            else if(ctx.INTLITERAL() != null)
+//                type = "INT";
+//            else if(ctx.ID() != null)
+//                type = microSymbolTable.getSymbol(ctx.ID().toString()).getType();
+//            Expression newExpr = new Expression(ctx.getText(), type);
+//            exprStack.add(newExpr);
+//        }
+//    }
+    @Override public void exitPrimaryID(MicroParser.PrimaryIDContext ctx) {
+        exprStack.add(new Expression(ctx.getText(), microSymbolTable.getSymbol(ctx.ID().toString()).getType()));
+    }
     @Override
-    public void exitPrimary(MicroParser.PrimaryContext ctx) {
-        if(ctx.getChildCount() == 1){
-            String type = "";
-            if(ctx.FLOATLITERAL() != null)
-                type = "FLOAT";
-            else if(ctx.INTLITERAL() != null)
-                type = "INT";
-            else if(ctx.ID() != null)
-                type = microSymbolTable.getSymbol(ctx.ID().toString()).getType();
-            Expression newExpr = new Expression(ctx.getText(), type);
-            exprStack.add(newExpr);
+    public void exitPrimaryINT(MicroParser.PrimaryINTContext ctx){
+        exprStack.add(new Expression(ctx.getText(), "INT"));
+    }
+    @Override
+    public void exitPrimaryFLOAT(MicroParser.PrimaryFLOATContext ctx){
+        exprStack.add(new Expression(ctx.getText(), "FLOAT"));
+    }
+
+    @Override
+    public void exitParanths(MicroParser.ParanthsContext ctx){
+        while(exprStack.size() > 1){
+            buildExpression();
         }
     }
 
@@ -319,9 +333,9 @@ class Listener extends MicroBaseListener {
             while(opStack.size() > 0) {
                 //Need to determine type
                 IRNode exprNode;
-                Expression op2 = exprStack.pop();
-                Expression operator = opStack.pop();
                 Expression op1 = exprStack.pop();
+                Expression operator = opStack.pop();
+                Expression op2 = exprStack.pop();
 
                 if (op1.getType().equals("INT") && op2.getType().equals("INT")) {
                     Expression result = new Expression("$T" + tempCount, "INT");

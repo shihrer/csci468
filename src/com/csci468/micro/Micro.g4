@@ -52,18 +52,18 @@ returnStmt          : RETURN expr ';';
 
 /* Expressions */
 expr                : exprPrefix factor;
-exprPrefix          : exprPrefix factor ADDOP |;
+exprPrefix          : exprPrefix factor ADDOP # ADDOP | # emptyExprPrefix;
 factor              : factorPrefix postfixExpr;
-factorPrefix        : factorPrefix postfixExpr MULOP |;
+factorPrefix        : factorPrefix postfixExpr MULOP # MULOP | # emptyFactorPrefix;
 postfixExpr         : primary |
                       callExpr;
 callExpr            : ID '(' exprList ')';
 exprList            : expr exprListTail |;
 exprListTail        : ',' expr exprListTail |;
-primary             : '(' expr ')'  |
-                      ID            |
-                      INTLITERAL    |
-                      FLOATLITERAL;
+primary             : '(' expr ')'  # paranths|
+                      ID            # primaryID|
+                      INTLITERAL    # primaryINT|
+                      FLOATLITERAL  # primaryFLOAT;
 
 /* Complex Statements and Condition */
 ifStmt              : IF '(' cond ')' decl stmtList elsePart ENDIF;
