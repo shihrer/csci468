@@ -107,11 +107,17 @@ class Listener extends MicroBaseListener {
 
     @Override
     public void exitReadStmt(MicroParser.ReadStmtContext ctx) {
-        Symbol readSymbol = microSymbolTable.getSymbol(ctx.idList().ID().toString());
-        if (readSymbol.getType().equals("INT"))
-            IRNodes.add(new IRNode("READI", readSymbol.getName(), null, null));
-        else if (readSymbol.getType().equals("FLOAT"))
-            IRNodes.add(new IRNode("READF", readSymbol.getName(), null, null));
+
+        String names = ctx.idList().getText();
+
+        String[] ids = names.split(",");
+        for (String id : ids) {
+            Symbol readSymbol = microSymbolTable.getSymbol(id);
+            if (readSymbol.getType().equals("INT"))
+                IRNodes.add(new IRNode("READI", readSymbol.getName(), null, null));
+            else if (readSymbol.getType().equals("FLOAT"))
+                IRNodes.add(new IRNode("READF", readSymbol.getName(), null, null));
+        }
 
     }
 
@@ -139,12 +145,10 @@ class Listener extends MicroBaseListener {
     public void enterVarDecl(MicroParser.VarDeclContext ctx) {
         String varType = ctx.varType().getText();
         //Create an entry in the current scope
-        String input = ctx.getText();
         String names = ctx.idList().getText();
 
         String[] tokens = names.split(",");
         for (String s : tokens) {
-            s = s.replace(";", "");
             microSymbolTable.createSymbol(s, varType);
         }
     }
