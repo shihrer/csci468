@@ -35,7 +35,7 @@ class TinyGenerator {
                     break;
                 //String variable declaration
                 case "STR":
-                    vars.append(String.format("var %s %s\n", f1, f2));
+                    vars.append(String.format("str %s %s\n", f1, f2));
                     break;
                 //Labels
                 case "LABEL":

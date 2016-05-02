@@ -305,6 +305,11 @@ class Listener extends MicroBaseListener {
     }
 
     @Override
+    public void exitStringDecl(MicroParser.StringDeclContext ctx){
+        IRNodes.add(new IRNode("STR", ctx.ID().toString(), ctx.STRINGLITERAL().toString(), ""));
+    }
+
+    @Override
     public String toString() {
         return microSymbolTable.toString();
     }
