@@ -107,7 +107,7 @@ class Listener extends MicroBaseListener {
     }
 
     @Override
-    public void enterReadStmt(MicroParser.ReadStmtContext ctx) {
+    public void exitReadStmt(MicroParser.ReadStmtContext ctx) {
         Symbol readSymbol = microSymbolTable.getSymbol(ctx.idList().ID().toString());
         if (readSymbol.getType().equals("INT"))
             IRNodes.add(new IRNode("READI", readSymbol.getName(), null, null));
@@ -152,6 +152,7 @@ class Listener extends MicroBaseListener {
 
     @Override
     public void exitAssignExpr(MicroParser.AssignExprContext ctx) {
+        // Store results of whatever expression is evaluated to the context ID
         //id of what we're assigning to
         String OPCode;
         String ID = ctx.ID().toString();
@@ -172,42 +173,17 @@ class Listener extends MicroBaseListener {
         String tempReg = "$T" + tempCount;
         tempCount++;
 
-        //newapprox := 0.5*(approx + num/approx);
-        while (!exprStack.empty()) {
+        // this is wrong...  I should build the expression elsewhere
+        if (!exprStack.empty()) {
             String OP1 = exprStack.pop();
-            int i = 0;
-
             IRNodes.add(new IRNode(OPCode, OP1, tempReg, null));
-
-            while (!operatorStack.empty()) {
-                String operator = operatorStack.pop();
-                String code;
-                switch (operator) {
-                    case "+":
-                        code = "ADDI";
-                        break;
-                    case "-":
-                        code = "SUBI";
-                        break;
-                    case "*":
-                        code = "MULTI";
-                        break;
-                    default:
-                        code = "";
-                        break;
-                }
-                String newTempReg = "$T" + tempCount;
-                tempCount++;
-                IRNodes.add(new IRNode(code, ID, tempReg, newTempReg));
-                tempReg = newTempReg;
-            }
-            IRNodes.add(new IRNode(OPCode, tempReg, ID, null));
         }
+        IRNodes.add(new IRNode(OPCode, tempReg, ID, null));
     }
 
     @Override
     public void exitCond(MicroParser.CondContext ctx) {
-        //Need register for both expressions
+        //Compare the results of the expressions
         StringBuilder OPCode = new StringBuilder();
 
         switch (ctx.COMPOP().toString()) {
@@ -232,7 +208,7 @@ class Listener extends MicroBaseListener {
         }
         String op1;
         String op2;
-        while (!exprStack.empty()) {
+        if(exprStack.size() > 1){
             op1 = exprStack.pop();
             op2 = exprStack.pop();
             String temp = "$T" + tempCount;
@@ -242,6 +218,16 @@ class Listener extends MicroBaseListener {
             labelCount++;
             tempCount++;
         }
+//        while (!exprStack.empty()) {
+//            op1 = exprStack.pop();
+//            op2 = exprStack.pop();
+//            String temp = "$T" + tempCount;
+//            IRNodes.add(new IRNode("STOREI", op1, temp, ""));
+//            IRNodes.add(new IRNode(OPCode.toString(), op2, temp, "label" + labelCount));
+//            labelStack.push(labelCount);
+//            labelCount++;
+//            tempCount++;
+//        }
     }
 
     @Override
@@ -269,15 +255,48 @@ class Listener extends MicroBaseListener {
     }
 
     @Override
+    public void exitExpr(MicroParser.ExprContext ctx){
+        // I need to determine the results of the expr and save that to the stack.
+        if(exprStack.size() > 2) {
+            IRNode exprNode;
+            String op1 = exprStack.pop();
+            String operator = exprStack.pop();
+            String op2 = exprStack.pop();
+            String result = "$T" + tempCount;
+            exprStack.push(result);
+            tempCount++;
+
+            switch (operator) {
+                case "+":
+                    exprNode = new IRNode("ADDI", op1, op2, result);
+                    break;
+                case "-":
+                    exprNode = new IRNode("SUBI", op1, op2, result);
+                    break;
+                case "*":
+                    exprNode = new IRNode("MULI", op1, op2, result);
+                    break;
+                default:
+                    exprNode = new IRNode("DIVI", op1, op2, result);
+                    break;
+            }
+            IRNodes.add(exprNode);
+            //push results back to expr stack so that they can be used later.
+        }
+    }
+
+    @Override
     public void exitExprPrefix(MicroParser.ExprPrefixContext ctx) {
-        if (ctx.ADDOP() != null)
-            operatorStack.push(ctx.ADDOP().toString());
+        if (ctx.ADDOP() != null){
+            exprStack.push(ctx.ADDOP().toString());
+        }
     }
 
     @Override
     public void exitFactorPrefix(MicroParser.FactorPrefixContext ctx){
-        if(ctx.MULOP() != null)
-            operatorStack.push(ctx.MULOP().toString());
+        if(ctx.MULOP() != null){
+            exprStack.push(ctx.MULOP().toString());
+        }
     }
 
     @Override
