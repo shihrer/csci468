@@ -1,11 +1,6 @@
 package com.csci468.micro;
 
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.ParseTreeProperty;
-
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Stack;
 
 /**
@@ -15,17 +10,20 @@ import java.util.Stack;
  */
 
 class Listener extends MicroBaseListener {
+    // Count variables
     private int scopeCount = 1;
-    private int labelCount = 1;
-    private int tempCount = 1;
+    private int labelCount = 0;
+    private int variableCount = 0;
 
     private SymbolTable microSymbolTable;
 
+    // Code generation objects
     private LinkedList<IRNode> IRNodes;
     private Stack<Integer> labelStack;
-    private Stack<Expression> exprStack = new Stack<>();
-//    private LinkedList<Expression> opStack = new LinkedList<>();
+    private Stack<Expression> expressionStack = new Stack<>();
+    private Stack<Stack<Expression>> stackStack = new Stack<>();
 
+    // Constructor requires IRNodes list
     Listener(LinkedList<IRNode> IRNodes) {
         microSymbolTable = new SymbolTable();
         this.IRNodes = IRNodes;
@@ -44,8 +42,9 @@ class Listener extends MicroBaseListener {
         //Pop scope
         destroyScope();
     }
+
     @Override
-    public void exitVarDecl(MicroParser.VarDeclContext ctx){
+    public void exitVarDecl(MicroParser.VarDeclContext ctx) {
 
         String ids = ctx.idList().getText();
 
@@ -153,11 +152,9 @@ class Listener extends MicroBaseListener {
 
     @Override
     public void exitAssignExpr(MicroParser.AssignExprContext ctx) {
-        // Store results of whatever expression is evaluated to the context ID
-        //id of what we're assigning to
-        //Clear out expression stack
-        while(exprStack.size() > 1)
-        {
+
+        //Clear out expression stack, just make sure there's nothing extra to evaluate.
+        while (expressionStack.size() > 1) {
             buildExpression();
         }
 
@@ -177,14 +174,14 @@ class Listener extends MicroBaseListener {
                 break;
         }
 
-        String tempReg = "$T" + tempCount;
-        tempCount++;
+        String tempReg = "$T" + variableCount;
+        variableCount++;
 
-        if (exprStack.size() > 0) {
-            Expression OP1 = exprStack.pop();
-            IRNodes.add(new IRNode(OPCode, OP1.getName(), tempReg, ""));
+        // Avoid popping if the stack is empty
+        if (expressionStack.size() > 0) {
+            Expression OP1 = expressionStack.pop();
+            IRNodes.add(new IRNode(OPCode, OP1.getName(), ID, ""));
         }
-        IRNodes.add(new IRNode(OPCode, tempReg, ID, ""));
     }
 
     @Override
@@ -192,13 +189,12 @@ class Listener extends MicroBaseListener {
         //Compare the results of the expressions
         Expression op1;
         Expression op2;
-        if(exprStack.size() > 1){
-            op1 = exprStack.pop();
-            op2 = exprStack.pop();
-            String temp = "$T" + tempCount;
+        if (expressionStack.size() > 1) {
+            op1 = expressionStack.pop();
+            op2 = expressionStack.pop();
+            String temp = "$T" + variableCount;
             StringBuilder OPCode = new StringBuilder();
-            if(op1.getType().equals("FLOAT") || op2.getType().equals("FLOAT"))
-            {
+            if (op1.getType().equals("FLOAT") || op2.getType().equals("FLOAT")) {
                 switch (ctx.COMPOP().toString()) {
                     case ">":
                         OPCode.append("LER");
@@ -219,7 +215,6 @@ class Listener extends MicroBaseListener {
                         OPCode.append("NER");
                         break;
                 }
-                IRNodes.add(new IRNode("STORER", op1.getName(), temp, "test"));
 
             } else {
                 switch (ctx.COMPOP().toString()) {
@@ -242,12 +237,12 @@ class Listener extends MicroBaseListener {
                         OPCode.append("NEI");
                         break;
                 }
-                IRNodes.add(new IRNode("STOREI", op1.getName(), temp, "test"));
             }
+            IRNodes.add(new IRNode("STOREI", op1.getName(), temp, "test"));
             IRNodes.add(new IRNode(OPCode.toString(), op2.getName(), temp, "label" + labelCount));
             labelStack.push(labelCount);
             labelCount++;
-            tempCount++;
+            variableCount++;
         }
     }
 
@@ -276,56 +271,53 @@ class Listener extends MicroBaseListener {
     @Override
     public void exitADDOP(MicroParser.ADDOPContext ctx) {
         Expression newExpr = new Expression(ctx.ADDOP().toString(), "OPERATOR");
-        exprStack.push(newExpr);
+        expressionStack.push(newExpr);
     }
 
     @Override
-    public void exitMULOP(MicroParser.MULOPContext ctx){
+    public void exitMULOP(MicroParser.MULOPContext ctx) {
         Expression newExpr = new Expression(ctx.MULOP().toString(), "OPERATOR");
-        exprStack.push(newExpr);
+        expressionStack.push(newExpr);
     }
 
-    @Override public void exitPrimaryID(MicroParser.PrimaryIDContext ctx) {
-        exprStack.add(new Expression(ctx.getText(), microSymbolTable.getSymbol(ctx.ID().toString()).getType()));
-        exprDepth++;
-    }
     @Override
-    public void exitPrimaryINT(MicroParser.PrimaryINTContext ctx){
-        exprStack.add(new Expression(ctx.getText(), "INT"));
+    public void exitPrimaryID(MicroParser.PrimaryIDContext ctx) {
+        expressionStack.add(new Expression(ctx.getText(), microSymbolTable.getSymbol(ctx.ID().toString()).getType()));
     }
+
     @Override
-    public void exitPrimaryFLOAT(MicroParser.PrimaryFLOATContext ctx){
-        exprStack.add(new Expression(ctx.getText(), "FLOAT"));
+    public void exitPrimaryINT(MicroParser.PrimaryINTContext ctx) {
+        expressionStack.add(new Expression(ctx.getText(), "INT"));
     }
-    private int exprDepth = 0;
+
     @Override
-    public void exitParanths(MicroParser.ParanthsContext ctx){
+    public void exitPrimaryFLOAT(MicroParser.PrimaryFLOATContext ctx) {
+        expressionStack.add(new Expression(ctx.getText(), "FLOAT"));
+    }
+
+    @Override
+    public void exitParanths(MicroParser.ParanthsContext ctx) {
         //Restore operations stack
         buildExpression();
-        Stack<Expression> newStack = stackCopy.pop();
-        newStack.addAll(exprStack);
-        exprStack = newStack;
-        //exprStack.addAll(stackCopy.pop());
-        //I need to evaluate all children
-//        for(int i = 0; i < exprDepth - 1; i++)
-//            buildExpression();
-        exprDepth = 0;
-    }
-
-    private Stack<Stack<Expression>> stackCopy = new Stack<>();
-    @Override
-    public void enterParanths(MicroParser.ParanthsContext ctx){
-        //Save the current operations stack and start over
-        stackCopy.push((Stack<Expression>)exprStack.clone());
-        exprStack.clear();
+        Stack<Expression> newStack = stackStack.pop();
+        newStack.addAll(expressionStack);
+        expressionStack = newStack;
     }
 
     @Override
-    public void exitFactor(MicroParser.FactorContext ctx){
-            buildExpression();
+    public void enterParanths(MicroParser.ParanthsContext ctx) {
+        //Save the current stack and start over
+        stackStack.push((Stack<Expression>) expressionStack.clone());
+        expressionStack.clear();
     }
+
     @Override
-    public void exitStringDecl(MicroParser.StringDeclContext ctx){
+    public void exitFactor(MicroParser.FactorContext ctx) {
+        buildExpression();
+    }
+
+    @Override
+    public void exitStringDecl(MicroParser.StringDeclContext ctx) {
         IRNodes.add(new IRNode("STR", ctx.ID().toString(), ctx.STRINGLITERAL().toString(), ""));
     }
 
@@ -334,18 +326,18 @@ class Listener extends MicroBaseListener {
         return microSymbolTable.toString();
     }
 
-    private void buildExpression(){
-        if(exprStack.size() > 2) {
+    private void buildExpression() {
+        if (expressionStack.size() > 2) {
             //Need to determine type
             IRNode exprNode;
-            Expression op2 = exprStack.pop();
-            Expression operator = exprStack.pop();
-            Expression op1 = exprStack.pop();
+            Expression op2 = expressionStack.pop();
+            Expression operator = expressionStack.pop();
+            Expression op1 = expressionStack.pop();
 
             if (op1.getType().equals("INT") && op2.getType().equals("INT")) {
-                Expression result = new Expression("$T" + tempCount, "INT");
-                exprStack.push(result);
-                tempCount++;
+                Expression result = new Expression("$T" + variableCount, "INT");
+                expressionStack.push(result);
+                variableCount++;
                 switch (operator.getName()) {
                     case "+":
                         exprNode = new IRNode("ADDI", op1.getName(), op2.getName(), result.getName());
@@ -361,9 +353,9 @@ class Listener extends MicroBaseListener {
                         break;
                 }
             } else {
-                Expression result = new Expression("$T" + tempCount, "FLOAT");
-                exprStack.push(result);
-                tempCount++;
+                Expression result = new Expression("$T" + variableCount, "FLOAT");
+                expressionStack.push(result);
+                variableCount++;
                 switch (operator.getName()) {
                     case "+":
                         exprNode = new IRNode("ADDR", op1.getName(), op2.getName(), result.getName());
