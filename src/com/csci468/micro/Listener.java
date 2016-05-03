@@ -34,7 +34,9 @@ class Listener extends MicroBaseListener {
     public void enterFuncDecl(MicroParser.FuncDeclContext ctx) {
         //Create new scope
         microSymbolTable.createScope(ctx.ID().toString());
-        IRNodes.add(new IRNode("LABEL", ctx.ID().toString(), "", ""));
+
+        Expression result = new Expression(ctx.ID().getText(), "STR");
+        IRNodes.add(new IRNode("LABEL", null, null, result));
     }
 
     @Override
@@ -49,7 +51,8 @@ class Listener extends MicroBaseListener {
         String ids = ctx.idList().getText();
 
         for (String id : ids.split(",")) {
-            IRNodes.add(new IRNode("VAR", id, "", ""));
+            Expression result = new Expression(id, ctx.varType().toString());
+            IRNodes.add(new IRNode("VAR", null, null, result));
         }
     }
 
@@ -67,13 +70,15 @@ class Listener extends MicroBaseListener {
     @Override
     public void exitIfStmt(MicroParser.IfStmtContext ctx) {
         int curLabel = labelStack.pop();
-        IRNodes.add(new IRNode("LABEL", "label" + curLabel, "", ""));
+        Expression result = new Expression("label" + curLabel, "STR");
+        IRNodes.add(new IRNode("LABEL", null, null, result));
         destroyScope();
     }
 
     @Override
     public void enterWhileStmt(MicroParser.WhileStmtContext ctx) {
-        IRNodes.add(new IRNode("LABEL", "label" + labelCount, "", ""));
+        Expression result = new Expression("label" + labelCount, "STR");
+        IRNodes.add(new IRNode("LABEL", null, null, result));
         labelStack.push(labelCount);
         labelCount++;
         createBlockScope();
@@ -83,17 +88,22 @@ class Listener extends MicroBaseListener {
     public void exitWhileStmt(MicroParser.WhileStmtContext ctx) {
         int curLabel = labelStack.pop();
         int jumpLabel = labelStack.pop();
-        IRNodes.add(new IRNode("JUMP", "label" + jumpLabel, "", ""));
-        IRNodes.add(new IRNode("LABEL", "label" + curLabel, "", ""));
+        Expression jumpResult = new Expression("label" + jumpLabel,"STR");
+        Expression labelResult = new Expression("label" + curLabel,"STR");
+
+        IRNodes.add(new IRNode("JUMP", null, null, jumpResult));
+        IRNodes.add(new IRNode("LABEL", null, null, labelResult));
     }
 
     @Override
     public void enterElse(MicroParser.ElseContext ctx) {
         createBlockScope();
-
         int curLabel = labelStack.pop();
-        IRNodes.add(new IRNode("JUMP", "label" + labelCount, "", ""));
-        IRNodes.add(new IRNode("LABEL", "label" + curLabel, "", ""));
+
+        Expression jumpResult = new Expression("label" + labelCount, "STR");
+        Expression labelResult = new Expression("label" + curLabel, "STR");
+        IRNodes.add(new IRNode("JUMP", null, null, jumpResult));
+        IRNodes.add(new IRNode("LABEL", null, null, labelResult));
         labelStack.push(labelCount);
         labelCount++;
     }
@@ -109,20 +119,15 @@ class Listener extends MicroBaseListener {
         String ids = ctx.idList().getText();
 
         for (String id : ids.split(",")) {
-            Symbol readSymbol = microSymbolTable.getSymbol(id);
-            if (readSymbol.getType().equals("INT"))
-                IRNodes.add(new IRNode("READI", readSymbol.getName(), "", ""));
-            else if (readSymbol.getType().equals("FLOAT"))
-                IRNodes.add(new IRNode("READF", readSymbol.getName(), "", ""));
+            Expression readResult = new Expression(id, microSymbolTable.getSymbol(id).getType());
+            IRNodes.add(new IRNode("READ", readResult, null, null));
         }
-
     }
 
     private void createBlockScope() {
         //Create new scope
-        String name = "BLOCK " + scopeCount;
-        scopeCount++;
         microSymbolTable.createScope(scopeCount);
+        scopeCount++;
     }
 
     private Scope destroyScope() {
@@ -158,29 +163,15 @@ class Listener extends MicroBaseListener {
             buildExpression();
         }
 
-        String OPCode;
+        String OPCode = "STORE";
         String ID = ctx.ID().toString();
-        String type = microSymbolTable.getSymbol(ID).getType();
+        Expression storeResult = new Expression(ID, microSymbolTable.getSymbol(ID).getType());
 
-        switch (type) {
-            case "INT":
-                OPCode = "STOREI";
-                break;
-            case "FLOAT":
-                OPCode = "STORER";
-                break;
-            default:
-                OPCode = "STORES";
-                break;
-        }
-
-        String tempReg = "$T" + variableCount;
-        variableCount++;
 
         // Avoid popping if the stack is empty
         if (expressionStack.size() > 0) {
             Expression OP1 = expressionStack.pop();
-            IRNodes.add(new IRNode(OPCode, OP1.getName(), ID, ""));
+            IRNodes.add(new IRNode(OPCode, OP1, null, storeResult));
         }
     }
 
@@ -192,57 +183,33 @@ class Listener extends MicroBaseListener {
         if (expressionStack.size() > 1) {
             op1 = expressionStack.pop();
             op2 = expressionStack.pop();
-            String temp = "$T" + variableCount;
+            Expression compareResult = new Expression("label" + labelCount, "STR");
             StringBuilder OPCode = new StringBuilder();
-            if (op1.getType().equals("FLOAT") || op2.getType().equals("FLOAT")) {
-                switch (ctx.COMPOP().toString()) {
-                    case ">":
-                        OPCode.append("LER");
-                        break;
-                    case ">=":
-                        OPCode.append("LTR");
-                        break;
-                    case "<":
-                        OPCode.append("GER");
-                        break;
-                    case "<=":
-                        OPCode.append("GTR");
-                        break;
-                    case "!=":
-                        OPCode.append("EQR");
-                        break;
-                    case "=":
-                        OPCode.append("NER");
-                        break;
-                }
 
-            } else {
-                switch (ctx.COMPOP().toString()) {
-                    case ">":
-                        OPCode.append("LEI");
-                        break;
-                    case ">=":
-                        OPCode.append("LTI");
-                        break;
-                    case "<":
-                        OPCode.append("GEI");
-                        break;
-                    case "<=":
-                        OPCode.append("GTI");
-                        break;
-                    case "!=":
-                        OPCode.append("EQI");
-                        break;
-                    case "=":
-                        OPCode.append("NEI");
-                        break;
-                }
+            switch (ctx.COMPOP().toString()) {
+                case ">":
+                    OPCode.append("LE");
+                    break;
+                case ">=":
+                    OPCode.append("LT");
+                    break;
+                case "<":
+                    OPCode.append("GE");
+                    break;
+                case "<=":
+                    OPCode.append("GT");
+                    break;
+                case "!=":
+                    OPCode.append("EQ");
+                    break;
+                case "=":
+                    OPCode.append("NE");
+                    break;
             }
-            IRNodes.add(new IRNode("STOREI", op1.getName(), temp, "test"));
-            IRNodes.add(new IRNode(OPCode.toString(), op2.getName(), temp, "label" + labelCount));
+            IRNodes.add(new IRNode(OPCode.toString(), op2, op1, compareResult));
             labelStack.push(labelCount);
             labelCount++;
-            variableCount++;
+            //variableCount++;
         }
     }
 
@@ -252,18 +219,8 @@ class Listener extends MicroBaseListener {
         String names = ctx.idList().getText();
 
         for (String s : names.split(",")) {
-            Symbol writeSymbol = microSymbolTable.getSymbol(s);
-            switch (writeSymbol.getType()) {
-                case "INT":
-                    IRNodes.add(new IRNode("WRITEI", writeSymbol.getName(), "", ""));
-                    break;
-                case "FLOAT":
-                    IRNodes.add(new IRNode("WRITER", writeSymbol.getName(), "", ""));
-                    break;
-                case "STRING":
-                    IRNodes.add(new IRNode("WRITES", writeSymbol.getName(), "", ""));
-                    break;
-            }
+            Expression writeOP = new Expression(s, microSymbolTable.getSymbol(s).getType());
+            IRNodes.add(new IRNode("WRITE", writeOP, null, null));
         }
 
     }
@@ -318,7 +275,10 @@ class Listener extends MicroBaseListener {
 
     @Override
     public void exitStringDecl(MicroParser.StringDeclContext ctx) {
-        IRNodes.add(new IRNode("STR", ctx.ID().toString(), ctx.STRINGLITERAL().toString(), ""));
+        Expression op1 = new Expression(ctx.ID().getText(), "STR");
+        Expression result = new Expression(ctx.STRINGLITERAL().toString(), "STR");
+
+        IRNodes.add(new IRNode("STR", op1, null, result));
     }
 
     @Override
@@ -334,43 +294,23 @@ class Listener extends MicroBaseListener {
             Expression operator = expressionStack.pop();
             Expression op1 = expressionStack.pop();
 
-            if (op1.getType().equals("INT") && op2.getType().equals("INT")) {
-                Expression result = new Expression("$T" + variableCount, "INT");
-                expressionStack.push(result);
-                variableCount++;
-                switch (operator.getName()) {
-                    case "+":
-                        exprNode = new IRNode("ADDI", op1.getName(), op2.getName(), result.getName());
-                        break;
-                    case "-":
-                        exprNode = new IRNode("SUBI", op1.getName(), op2.getName(), result.getName());
-                        break;
-                    case "*":
-                        exprNode = new IRNode("MULI", op1.getName(), op2.getName(), result.getName());
-                        break;
-                    default:
-                        exprNode = new IRNode("DIVI", op1.getName(), op2.getName(), result.getName());
-                        break;
-                }
-            } else {
-                Expression result = new Expression("$T" + variableCount, "FLOAT");
-                expressionStack.push(result);
-                variableCount++;
-                switch (operator.getName()) {
-                    case "+":
-                        exprNode = new IRNode("ADDR", op1.getName(), op2.getName(), result.getName());
-                        break;
-                    case "-":
-                        exprNode = new IRNode("SUBR", op1.getName(), op2.getName(), result.getName());
-                        break;
-                    case "*":
-                        exprNode = new IRNode("MULR", op1.getName(), op2.getName(), result.getName());
-                        break;
-                    default:
-                        exprNode = new IRNode("DIVR", op1.getName(), op2.getName(), result.getName());
-                        break;
-                }
+            Expression result = new Expression("$T" + variableCount, op1.getType());
+            expressionStack.push(result);
+            variableCount++;
 
+            switch (operator.getName()) {
+                case "+":
+                    exprNode = new IRNode("ADD", op1, op2, result);
+                    break;
+                case "-":
+                    exprNode = new IRNode("SUB", op1, op2, result);
+                    break;
+                case "*":
+                    exprNode = new IRNode("MUL", op1, op2, result);
+                    break;
+                default:
+                    exprNode = new IRNode("DIV", op1, op2, result);
+                    break;
             }
             IRNodes.add(exprNode);
         }

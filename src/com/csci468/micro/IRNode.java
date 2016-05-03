@@ -1,34 +1,68 @@
 package com.csci468.micro;
 
 class IRNode {
-    //Opcode
+
+    //Data fields
     private String _opcode;
-    //Operand
-    private String _operand1;
-    //Operand
-    private String _operand2;
-    //Result
-    private String _result;
+    private Expression _operand1;
+    private Expression _operand2;
+    private Expression _result;
 
-    private String _branch;
+    IRNode(String OPCode, Expression OP1, Expression OP2, Expression Result) {
+        if(OP1 != null && !OPCode.equals("STR")){
+            switch (OP1.getType()) {
+                case "INT":
+                    this._opcode = OPCode + "I";
+                    break;
+                case "FLOAT":
+                    this._opcode = OPCode + "R";
+                    break;
+                default:
+                    this._opcode = OPCode + "S";
+                    break;
+            }
+        }else {
+            this._opcode = OPCode;
+        }
 
-    IRNode(String OPCode, String OP1, String OP2, String Result){
-        this._opcode = OPCode;
         this._operand1 = OP1;
         this._operand2 = OP2;
         this._result = Result;
     }
 
-    String getIRCode(){
-        return String.format("; %s %s %s %s",_opcode, _operand1, _operand2, _result);
+    String getIRCode() {
+        StringBuilder irCode = new StringBuilder();
+        irCode.append("; ");
+        irCode.append(_opcode).append(" ");
+
+        if(_operand1 != null)
+            irCode.append(_operand1).append(" ");
+        if(_operand2 != null)
+            irCode.append(_operand2).append(" ");
+        if(_result != null)
+            irCode.append(_result).append(" ");
+
+        return irCode.toString();
     }
 
-    public String getBranch(){
-        return _branch;
+    String getOpcode() {
+        return _opcode;
     }
 
-    String get_opcode() { return _opcode; }
-    String get_first() { return _operand1; }
-    String get_second() { return _operand2; }
-    String get_third() { return _result; }
+    Expression getOP1() {
+        return _operand1;
+    }
+
+    Expression getOP2() {
+        return _operand2;
+    }
+
+    Expression getResult() {
+        return _result;
+    }
+
+    @Override
+    public String toString(){
+        return getIRCode();
+    }
 }
