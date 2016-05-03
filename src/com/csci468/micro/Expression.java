@@ -4,11 +4,21 @@ class Expression {
     private String name;
     private String type;
 
-    Expression(String name, String type){
+    Expression(String name, String type) {
         this.name = name;
         this.type = type;
     }
 
-    String getType(){return this.type;}
-    String getName() {return this.name;}
+    String getType() {
+        return this.type;
+    }
+
+    String getName() {
+        return this.name;
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
+    }
 }
