@@ -3,7 +3,9 @@ package com.csci468.micro;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -298,10 +300,24 @@ class Listener extends MicroBaseListener {
     private int exprDepth = 0;
     @Override
     public void exitParanths(MicroParser.ParanthsContext ctx){
+        //Restore operations stack
+        buildExpression();
+        Stack<Expression> newStack = stackCopy.pop();
+        newStack.addAll(exprStack);
+        exprStack = newStack;
+        //exprStack.addAll(stackCopy.pop());
         //I need to evaluate all children
 //        for(int i = 0; i < exprDepth - 1; i++)
 //            buildExpression();
         exprDepth = 0;
+    }
+
+    private Stack<Stack<Expression>> stackCopy = new Stack<>();
+    @Override
+    public void enterParanths(MicroParser.ParanthsContext ctx){
+        //Save the current operations stack and start over
+        stackCopy.push((Stack<Expression>)exprStack.clone());
+        exprStack.clear();
     }
 
     @Override

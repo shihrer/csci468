@@ -52,9 +52,9 @@ returnStmt          : RETURN expr ';';
 
 /* Expressions */
 expr                : exprPrefix factor;
+exprPrefix          : exprPrefix factor ADDOP # ADDOP | # emptyExprPrefix;
 factor              : factorPrefix postfixExpr;
 factorPrefix        : factorPrefix postfixExpr MULOP # MULOP | # emptyFactorPrefix;
-exprPrefix          : exprPrefix factor ADDOP # ADDOP | # emptyExprPrefix;
 postfixExpr         : primary |
                       callExpr;
 callExpr            : ID '(' exprList ')';
