@@ -154,10 +154,10 @@ class Listener extends MicroBaseListener {
         // Store results of whatever expression is evaluated to the context ID
         //id of what we're assigning to
         //Clear out expression stack
-//        while(exprStack.size() > 1)
-//        {
-//            buildExpression();
-//        }
+        while(exprStack.size() > 1)
+        {
+            buildExpression();
+        }
 
         String OPCode;
         String ID = ctx.ID().toString();
