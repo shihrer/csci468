@@ -42,6 +42,15 @@ class Listener extends MicroBaseListener {
         //Pop scope
         destroyScope();
     }
+    @Override
+    public void exitVarDecl(MicroParser.VarDeclContext ctx){
+
+        String ids = ctx.idList().getText();
+
+        for (String id : ids.split(",")) {
+            IRNodes.add(new IRNode("VAR", id, "", ""));
+        }
+    }
 
     @Override
     public void enterParamDecl(MicroParser.ParamDeclContext ctx) {
