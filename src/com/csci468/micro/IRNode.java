@@ -9,7 +9,7 @@ class IRNode {
     private Expression _result;
 
     IRNode(String OPCode, Expression OP1, Expression OP2, Expression Result) {
-        if(OP1 != null && !OPCode.equals("STR")){
+        if (OP1 != null && !OPCode.equals("STR")) {
             switch (OP1.getType()) {
                 case "INT":
                     this._opcode = OPCode + "I";
@@ -21,7 +21,7 @@ class IRNode {
                     this._opcode = OPCode + "S";
                     break;
             }
-        }else {
+        } else {
             this._opcode = OPCode;
         }
 
@@ -35,11 +35,11 @@ class IRNode {
         irCode.append("; ");
         irCode.append(_opcode).append(" ");
 
-        if(_operand1 != null)
+        if (_operand1 != null)
             irCode.append(_operand1).append(" ");
-        if(_operand2 != null)
+        if (_operand2 != null)
             irCode.append(_operand2).append(" ");
-        if(_result != null)
+        if (_result != null)
             irCode.append(_result).append(" ");
 
         return irCode.toString();
@@ -62,7 +62,7 @@ class IRNode {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return getIRCode();
     }
 }

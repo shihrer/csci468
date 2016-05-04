@@ -14,7 +14,7 @@ class SymbolTable {
     //Store all scopes.  Necessary for outputting.
     private ArrayList<Scope> scopes;
 
-    SymbolTable(){
+    SymbolTable() {
         //Initialize stack
         scopeStack = new Stack<>();
         scopes = new ArrayList<>();
@@ -25,7 +25,7 @@ class SymbolTable {
         scopes.add(global);
     }
 
-    Scope createScope(int scopeCount){
+    Scope createScope(int scopeCount) {
         Scope scope = new Scope(scopeCount);
         scopeStack.push(scope);
         scopes.add(scope);
@@ -34,7 +34,7 @@ class SymbolTable {
         return scope;
     }
 
-    Scope createScope(String name){
+    Scope createScope(String name) {
         Scope scope = new Scope(name);
         scopeStack.push(scope);
         scopes.add(scope);
@@ -43,7 +43,7 @@ class SymbolTable {
         return scope;
     }
 
-    Scope destroyScope(){
+    Scope destroyScope() {
         return scopeStack.pop();
     }
 
@@ -57,7 +57,8 @@ class SymbolTable {
 
         return symbol;
     }
-    Symbol createSymbol(String name, String type){
+
+    Symbol createSymbol(String name, String type) {
         Symbol symbol = new Symbol(name, type);
 
         scopeStack.peek().addSymbol(symbol);
@@ -67,7 +68,7 @@ class SymbolTable {
         return symbol;
     }
 
-    Symbol getSymbol(String ID){
+    Symbol getSymbol(String ID) {
         for (Scope aScopeStack : scopeStack) {
             if (aScopeStack.hasSymbol(ID)) {
                 return aScopeStack.getSymbol(ID);
@@ -78,9 +79,9 @@ class SymbolTable {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         StringBuilder output = new StringBuilder();
-        for(Scope scope : scopes)
+        for (Scope scope : scopes)
             output.append(scope);
 
         return output.toString();

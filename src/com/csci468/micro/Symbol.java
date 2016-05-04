@@ -10,29 +10,31 @@ class Symbol {
     private String type;
     private String value;
 
-    Symbol(String name, String type, String value){
+    Symbol(String name, String type, String value) {
         this.name = name;
         this.type = type;
         this.value = value;
     }
 
-    Symbol(String name, String type){
+    Symbol(String name, String type) {
         this.name = name;
         this.type = type;
         this.value = "";
     }
 
-    String getName()
-    {
+    String getName() {
         return name;
     }
-    String getType() { return type; }
+
+    String getType() {
+        return type;
+    }
 
     @Override
-    public String toString(){
-        if(value.isEmpty()) {
+    public String toString() {
+        if (value.isEmpty()) {
             return String.format("name %s type %s\n", this.name, this.type);
-        }else{
+        } else {
             return String.format("name %s type %s value %s\n", this.name, this.type, this.value);
         }
     }

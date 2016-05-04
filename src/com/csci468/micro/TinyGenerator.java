@@ -11,13 +11,13 @@ class TinyGenerator {
 
     private LinkedList<IRNode> code;
 
-    TinyGenerator (LinkedList<IRNode> IRcode){
+    TinyGenerator(LinkedList<IRNode> IRcode) {
         code = IRcode;
         generate();
     }
 
-    private void generate(){
-        while (!code.isEmpty()){
+    private void generate() {
+        while (!code.isEmpty()) {
             IRNode current = code.pop();
             int register = 0;
             String opcode = current.getOpcode();
@@ -28,7 +28,7 @@ class TinyGenerator {
             //need to first assign a to r99 and then r99 to b.
             String temp = "r99";
 
-            switch (opcode){
+            switch (opcode) {
                 //int and float variable declaration
                 case "VAR":
                     vars.append(String.format("var %s\n", f3));
@@ -54,41 +54,41 @@ class TinyGenerator {
                 case "STOREI":
                 case "STORER":
                     //check to catch statements such as a := b;
-                    if(!f1.getName().contains("$") && !f3.getName().contains("$")){
+                    if (!f1.getName().contains("$") && !f3.getName().contains("$")) {
                         tiny.append(String.format("move %s %s\n", f1.getName().replace("$T", "r"), temp));
                         tiny.append(String.format("move %s %s\n", temp, f3.getName().replace("$T", "r")));
-                    }else {
+                    } else {
                         tiny.append(String.format("move %s %s\n", f1.getName().replace("$T", "r"), f3.getName().replace("$T", "r")));
                     }
                     break;
                 //Increment and decriment
                 case "INCI":
                 case "DECI":
-                    tiny.append(String.format("%s %s\n", opcode.toLowerCase(), f3.getName().replace("$T","r")));
+                    tiny.append(String.format("%s %s\n", opcode.toLowerCase(), f3.getName().replace("$T", "r")));
                     break;
                 //Addition
                 case "ADDI":
                 case "ADDR":
-                    tiny.append(String.format("move %s %s\n", f1.getName().replace("$T","r"), f3.getName().replace("$T","r")));
-                    tiny.append(String.format("%s %s %s\n", opcode.toLowerCase(), f2.getName().replace("$T","r"), f3.getName().replace("$T","r")));
+                    tiny.append(String.format("move %s %s\n", f1.getName().replace("$T", "r"), f3.getName().replace("$T", "r")));
+                    tiny.append(String.format("%s %s %s\n", opcode.toLowerCase(), f2.getName().replace("$T", "r"), f3.getName().replace("$T", "r")));
                     break;
                 //Subtraction
                 case "SUBI":
                 case "SUBR":
-                    tiny.append(String.format("move %s %s\n", f1.getName().replace("$T","r"), f3.getName().replace("$T","r")));
-                    tiny.append(String.format("%s %s %s\n", opcode.toLowerCase(), f2.getName().replace("$T","r"), f3.getName().replace("$T","r")));
+                    tiny.append(String.format("move %s %s\n", f1.getName().replace("$T", "r"), f3.getName().replace("$T", "r")));
+                    tiny.append(String.format("%s %s %s\n", opcode.toLowerCase(), f2.getName().replace("$T", "r"), f3.getName().replace("$T", "r")));
                     break;
                 //Multiplication
                 case "MULI":
                 case "MULR":
-                    tiny.append(String.format("move %s %s\n", f1.getName().replace("$T","r"), f3.getName().replace("$T","r")));
-                    tiny.append(String.format("%s %s %s\n", opcode.toLowerCase(), f2.getName().replace("$T","r"), f3.getName().replace("$T","r")));
+                    tiny.append(String.format("move %s %s\n", f1.getName().replace("$T", "r"), f3.getName().replace("$T", "r")));
+                    tiny.append(String.format("%s %s %s\n", opcode.toLowerCase(), f2.getName().replace("$T", "r"), f3.getName().replace("$T", "r")));
                     break;
                 //Division
                 case "DIVI":
                 case "DIVR":
-                    tiny.append(String.format("move %s %s\n", f1.getName().replace("$T","r"), f3.getName().replace("$T","r")));
-                    tiny.append(String.format("%s %s %s\n", opcode.toLowerCase(), f2.getName().replace("$T","r"), f3.getName().replace("$T","r")));
+                    tiny.append(String.format("move %s %s\n", f1.getName().replace("$T", "r"), f3.getName().replace("$T", "r")));
+                    tiny.append(String.format("%s %s %s\n", opcode.toLowerCase(), f2.getName().replace("$T", "r"), f3.getName().replace("$T", "r")));
                     break;
 
                 //Integer comparison
@@ -98,13 +98,13 @@ class TinyGenerator {
                 case "LEI":
                 case "LTI":
                 case "GTI":
-                    if(!f1.getName().contains("$") && !f2.getName().contains("$")){
+                    if (!f1.getName().contains("$") && !f2.getName().contains("$")) {
                         tiny.append(String.format("move %s %s\n", f2, temp));
                         tiny.append(String.format("cmpi %s %s\n", f1, temp));
-                    }else {
-                        tiny.append(String.format("cmpi %s %s\n", f1, f2.getName().replace("$T","r")));
+                    } else {
+                        tiny.append(String.format("cmpi %s %s\n", f1, f2.getName().replace("$T", "r")));
                     }
-                    tiny.append(String.format("j%s %s\n", opcode.substring(0,2).toLowerCase(), f3));
+                    tiny.append(String.format("j%s %s\n", opcode.substring(0, 2).toLowerCase(), f3));
                     break;
                 //Real number comparison
                 case "EQR":
@@ -113,13 +113,13 @@ class TinyGenerator {
                 case "LER":
                 case "LTR":
                 case "GTR":
-                    if(!f1.getName().contains("$") && !f2.getName().contains("$")){
+                    if (!f1.getName().contains("$") && !f2.getName().contains("$")) {
                         tiny.append(String.format("move %s %s\n", f2, temp));
                         tiny.append(String.format("cmpr %s %s\n", f1, temp));
-                    }else {
-                        tiny.append(String.format("cmpr %s %s\n", f1, f2.getName().replace("$T","r")));
+                    } else {
+                        tiny.append(String.format("cmpr %s %s\n", f1, f2.getName().replace("$T", "r")));
                     }
-                    tiny.append(String.format("j%s %s\n", opcode.substring(0,2).toLowerCase(), f3));
+                    tiny.append(String.format("j%s %s\n", opcode.substring(0, 2).toLowerCase(), f3));
                     break;
                 //System output
                 case "WRITEI":
@@ -141,5 +141,7 @@ class TinyGenerator {
         tiny.insert(0, vars);
     }
 
-    String getTiny(){ return tiny.toString(); }
+    String getTiny() {
+        return tiny.toString();
+    }
 }

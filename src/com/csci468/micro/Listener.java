@@ -88,8 +88,8 @@ class Listener extends MicroBaseListener {
     public void exitWhileStmt(MicroParser.WhileStmtContext ctx) {
         int curLabel = labelStack.pop();
         int jumpLabel = labelStack.pop();
-        Expression jumpResult = new Expression("label" + jumpLabel,"STR");
-        Expression labelResult = new Expression("label" + curLabel,"STR");
+        Expression jumpResult = new Expression("label" + jumpLabel, "STR");
+        Expression labelResult = new Expression("label" + curLabel, "STR");
 
         IRNodes.add(new IRNode("JUMP", null, null, jumpResult));
         IRNodes.add(new IRNode("LABEL", null, null, labelResult));

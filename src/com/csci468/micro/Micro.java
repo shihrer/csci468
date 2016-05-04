@@ -14,18 +14,14 @@ class Micro {
     private MicroLexer lexer;
 
     Micro(String inputPath) throws IOException {
-        try
-        {
+        try {
             lexer = new MicroLexer(new ANTLRFileStream(inputPath));
-        }
-        catch(IOException e2)
-        {
+        } catch (IOException e2) {
             System.out.println(e2.getLocalizedMessage());
         }
     }
 
-    void Scan()
-    {
+    void Scan() {
         CommonTokenStream tokens = new CommonTokenStream(lexer);
 
         MicroParser parser = new MicroParser(tokens);
@@ -44,7 +40,7 @@ class Micro {
             System.out.print(gen.getTiny());
             //System.out.print(microListener);
 
-        }catch(ParseCancellationException e){
+        } catch (ParseCancellationException e) {
             System.out.println(e.getMessage());
             //System.out.println("Not accepted");
         }
